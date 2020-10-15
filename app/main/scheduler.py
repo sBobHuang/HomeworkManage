@@ -1,17 +1,9 @@
-import os
-
-from flask import current_app
 from flask_apscheduler import APScheduler  # 主要插件
 
+from app import create_app
 from config import bakSqlite
 from . import main
 from .api_exception import UpdateSuccess
-from ..fuc import getCourseInfoSet, getCourseStr, sendSMS
-from ..models import Course
-from app import create_app
-from .. import db
-from datetime import datetime, timedelta
-
 
 APP = create_app('default')
 scheduler = APScheduler()
@@ -31,39 +23,7 @@ def task1(a, b):
 def task2():
     global APP
     with APP.app_context():
-        getCourse()
-
-
-def getCourse():
-    course_query = Course.query.filter(Course.order_status > 1, Course.order_status < 4,
-                                       Course.last_updated_at < datetime.utcnow() - timedelta(hours=1)).all()
-    courseInfoSet = getCourseInfoSet()
-    disabled_set = []
-    ok = 0
-    for course in course_query:
-        if course.seat_id is None:
-            continue
-        if course.real_name[0:2] == '交换' and course.mobile_phone == current_app.config['FLASK_ADMIN']:
-            continue
-        if course.real_name in disabled_set:
-            continue
-        course_str = getCourseStr(course.course_info_id, courseInfoSet)
-        if ok == 0:
-            print(datetime.utcnow(), '执行了定时任务')
-            ok = 1
-        print(course.real_name + '报名的' + course_str + '座位号为'+str(course.seat_id)+'将被取消')
-        result = sendSMS(course.mobile_phone, 627737, [course.real_name, course_str])
-        if result['result'] == 0:
-            course.order_status = 1
-            course.seat_id = None
-            course.last_updated_at = datetime.utcnow()
-            db.session.add(course)
-            try:
-                db.session.commit()
-                print('取消成功')
-            except:
-                db.session.rollback()
-                print('取消失败')
+        pass
 
 
 @main.route('/pause/<int:id>', methods=['POST'])
