@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}作业管理系统 - 确认你的账号{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>
+        欢迎, {{ current_user.username }}!
+    </h1>
+    <h3>您未在邮箱确认您的账号。</h3>
+    <p>
+        在您可以愉快地在这个作业管理系统畅游之前，请您去您注册邮箱的收件箱查看
+        邮件确认账号。当然它一般都在垃圾箱里~~~
+    </p>
+    <p>
+        重发确认邮件？
+        <a href="{{ url_for('auth.resend_confirmation') }}">点我</a>
+    </p>
+</div>
+{% endblock %}

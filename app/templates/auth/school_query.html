@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "./_macros.html" as macros %}
+
+{% block title %}作业管理系统{% endblock %}
+
+{% block page_content %}
+<div class="row">
+    <div class="col-md-9 col-sm-12 col-xs-12">
+        <div class="panel-heading">
+            <h3 align="center">{{ school_str }}学习情况</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr align="center">
+                    {% for i in studentsLabels %}
+                        <td>{{ i }}</td>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in students %}
+                    <tr align="center">
+                        <td>{{ loop.index }}</td>
+                        {% for j in i %}
+                            {% if j == None %}
+                                <td></td>
+                            {% elif loop.index==5 or loop.index==6%}
+                                <td style="white-space: pre-wrap;">{{ j }}</td>
+                            {% else %}
+                                <td>{{ j }}</td>
+                            {% endif %}
+
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

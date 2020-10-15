@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "./_macros.html" as macros %}
+
+{% block title %}作业管理系统{% endblock %}
+
+{% block page_content %}
+{% include 'auth/_cancel_courses.html' %}
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.cancelCourse') }}
+</div>
+{% endif %}
+{% endblock %}

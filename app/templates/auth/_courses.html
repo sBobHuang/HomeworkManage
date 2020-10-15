@@ -1,0 +1,46 @@
+<ul class="enrollments">
+    {% for show in shows %}
+    <li class="enrollment">
+        <div class="enrollment-content">
+            <div class="enrollment-date">{{ moment(show[0]).fromNow() }}</div>
+            <div class="enrollment-author"><a>{{ show[1] }}</a></div>
+            <div class="enrollment-body">
+                <h3>家长手机号：{{show[2]}}</h3>
+                <h4>价格：{{ show[3] }},
+                    {{ show[10] }},
+                    课程:{{ show[4] }},
+                    座位号:{{ show[9] }},
+                    课程ID:{{ show[8] }}</h4>
+             <p>付款方式：
+                {% if show[5] == 2 %}
+                    银行卡转账</p>
+                {% elif show[5] == 0 %}
+                    微信</p>
+                {% elif show[5] == 1 %}
+                    支付宝</p>
+                {% else %}
+                    未知</p>
+                {% endif %}
+                <p>选座状态：
+                {% if show[6] == 3 %}
+                    用户点击支付</p>
+                {% else %}
+                    用户仅选座</p>
+                {% endif %}
+            </div>
+            <div class="enrollment-footer">
+                {% if current_user.is_administrator() or current_user.is_moderator()%}
+                <a href="{{ url_for('.confirmCourse', id=show[7]) }}">
+                    <span class="label label-danger">确认</span>
+                </a>
+                {% endif %}
+                {% if current_user.is_administrator() %}
+                <a href="{{ url_for('.cleanSeatID', id=show[7]) }}">
+                    <span class="label label-primary">删除座位</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>

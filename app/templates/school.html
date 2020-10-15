@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}作业管理系统{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="col-md-7 col-sm-12 col-xs-12">
+            <div class="panel-heading">
+                <h3 align="center">学校管理</h3>
+            </div>
+                {% for i in school_locations %}
+                <div class="panel-heading">
+                    <h4 align="center">{{ i[0] }}({{ school_locations_numSet[i[0]] }}人)</h4>
+                    <table class="table table-striped table-bordered table-hover table-xs">
+                    <tbody>
+                    {% for j in i[1] %}
+                        {% if loop.index % 2==1 %}
+                        <tr align="center">
+                        {% endif %}
+                                <td>
+                                    <a href="{{ url_for('.schoolQuery',school_str=j) }}">
+                                        {{ j }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{studentSchoolSet[j][0]}}
+                                </td>
+                        {% if loop.index % 2==0 %}
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
