@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
+from datetime import timedelta
+
 from flask import Flask
 from flask_bootstrap import Bootstrap, WebCDN, ConditionalCDN, BOOTSTRAP_VERSION, \
     JQUERY_VERSION, HTML5SHIV_VERSION, RESPONDJS_VERSION
@@ -24,6 +26,7 @@ login_manage.login_view = 'auth.login'
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = timedelta(seconds=1)
     # 使用默认的flask配置
     bootstrap.init_app(app)
     change_cdn_domestic(app)
