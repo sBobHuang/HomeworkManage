@@ -9,10 +9,6 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    APP_ID = 'wxbb2e2f3094b20e73'
-    APP_SECRET = '836a0d4cb8b0f0a0a45d2d69c1f5a6a2'
-    AUTH_LOGIN_URL = 'https://api.weixin.qq.com/sns/jscode2session?appid={}' \
-                     '&secret={}&js_code={}&grant_type=authorization_code '
     CURRENT_TERM = '204'
     CURRENT_PAY_TYPE = [0, 0, 0]
     SECRET_KEY = "BobHuang"
