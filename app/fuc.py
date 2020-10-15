@@ -1,5 +1,6 @@
 import json
 import os
+import zipfile
 
 
 def noneToInt(num):
@@ -49,3 +50,14 @@ def safe_copy(out_dir, name, form):
         while os.path.exists(os.path.join(out_dir, '{}_{}{}'.format(base, i, extension))):
             i += 1
         form.file.data.save(os.path.join(out_dir, '{}_{}{}'.format(base, i, extension)))
+
+
+def make_zip(source_dir, output_filename):
+    zip_file = zipfile.ZipFile(output_filename, 'w')
+    pre_len = len(os.path.dirname(source_dir))
+    for parent, dir_names, filenames in os.walk(source_dir):
+        for filename in filenames:
+            path_file = os.path.join(parent, filename)
+            arc_name = path_file[pre_len:].strip(os.path.sep)  # 相对路径
+            zip_file.write(path_file, arc_name)
+    zip_file.close()

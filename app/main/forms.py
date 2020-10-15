@@ -8,7 +8,6 @@ from wtforms import StringField, SubmitField, TextAreaField, BooleanField, Selec
 from wtforms.validators import DataRequired, Length, Email, ValidationError
 
 
-
 class UploadForm(FlaskForm):
     name = StringField('姓名', validators=[DataRequired()])
     studentID = StringField('学号', validators=[DataRequired()])
