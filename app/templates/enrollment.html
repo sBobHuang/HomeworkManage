@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}作业管理系统 - 报名信息填写{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>报名信息填写</h1>
+</div>
+<div class="form-inline" >
+ {{ wtf.form_field(myform.file_category, class = "form-control", style = "width:100%;") }}
+</div>
+{% endblock %}

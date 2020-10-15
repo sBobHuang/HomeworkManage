@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}作业管理系统 - 管理员{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <p style="font-size:x-large">
+            <a style='text-decoration:none;color: black'>{{ query_term_str }}</a>
+            <a href="{{ url_for('.courseAdmin') }}">课程确认</a>
+            <a href="{{ url_for('.cancelCourse') }}">取消报名</a>
+            <a href="{{ url_for('main.quartReport') }}">总账</a>
+            <a href="{{ url_for('main.courseManage') }}">班级管理</a>
+            <a href="{{ url_for('main.schoolManagement')}}">学校管理</a>
+            <a href="{{ url_for('main.preTerm') }}">往期管理</a>
+        </p>
+    </div>
+{% for form in forms%}
+    <div class="col-md-4">
+        {{ wtf.quick_form(form) }}
+    </div>
+{% endfor %}
+
+{% endblock %}

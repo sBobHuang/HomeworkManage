@@ -1,0 +1,31 @@
+<div class="row">
+    <div class="col-md-7 col-sm-12 col-xs-12">
+        <div class="panel-heading">
+            <h3 align="center">{{ course }}培训收入情况表</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr align="center">
+                    {% for i in courseIncomeLabels %}
+                        <td>{{ i }}</td>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in courseIncome %}
+                    <tr align="center">
+                        {% for j in i %}
+                            {% if j==0 %}
+                                <td></td>
+                            {% else %}
+                                <td>{{ j }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

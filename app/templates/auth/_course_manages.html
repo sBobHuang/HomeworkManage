@@ -1,0 +1,66 @@
+<div class="row">
+    <div class="col-md-8 col-sm-12 col-xs-12">
+        <div class="panel-heading">
+            <h3 align="center">{{ course }}班级情况</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr align="center">
+                    {% for i in courseManageLabels %}
+                        <td>{{ i }}</td>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in courseContent %}
+                    <tr align="center">
+                        <td>{{ loop.index }}</td>
+                        {% for j in i %}
+                            {% if j == None %}
+                                <td></td>
+                            {% else %}
+                                <td>{{ j }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% if courseOtherContent != None %}
+<div class="row">
+    <div class="col-md-8 col-sm-12 col-xs-12">
+        <div class="panel-heading">
+            <h3 align="center">其他报名情况</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr align="center">
+                    {% for i in courseManageOtherLabels %}
+                        <td>{{ i }}</td>
+                    {% endfor %}
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in courseOtherContent %}
+                    <tr align="center">
+                        <td>{{ loop.index }}</td>
+                        {% for j in i %}
+                            {% if j == None %}
+                                <td></td>
+                            {% else %}
+                                <td>{{ j }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}

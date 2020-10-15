@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}作业管理系统 - 报名信息填写{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>报名</h1><h3>(2020暑假班)</h3>
+    <p>信奥的基础班有试听课，不确定的请点击<a href="/audition">试听课报名</a></p>
+</div>
+<div class="col-md-5">
+    {{ wtf.quick_form(form) }}
+</div>
+
+<script>
+    function change() {
+        let locationselect=document.getElementById("location").selectedIndex;
+        let categoryselect=document.getElementById("category").selectedIndex;
+        if(locationselect==0 && categoryselect == 1) {
+            let LinHaiOI={'0':'基础班1(7.11～7.20 上午8:30～11:30)','1':'基础班2(7.27～8.5 晚上6:00～9:00)','2':'提高班1(7.27～8.5 上午8:30～11:30)','3':'提高班2(8.14～8.23 上午8:30～11:30)','4':'竞赛班(8.14～8.23 晚上6:00～9:00)'};
+            changeOption(LinHaiOI);
+        }
+        if(locationselect==0 && categoryselect == 2) {
+            let LinHaiPy={'0':'基础班1(7.11～7.20 下午1:30～4:30)','1':'基础班2(7.27～8.5 下午1:30～4:30)','2':'提高班(8.14～8.23 下午1:30～4:30)'};
+            changeOption(LinHaiPy);
+        }
+        if(locationselect==1 && categoryselect == 1) {
+            let JiaoJiangOI={'0':'基础班1(7.11～7.20 上午8:30～11:30)','1':'基础班2(7.27～8.5 晚上6:00～9:00)','2':'提高班1(7.27～8.5 上午8:30～11:30)','3':'提高班2(8.14～8.23 上午8:30～11:30)','4':'竞赛班(8.14～8.23 晚上6:00～9:00)'};
+            changeOption(LJiaoJiangOI);
+        }
+        if(locationselect==1 && categoryselect == 2) {
+            let JiaoJiangPy={'0':'基础班1(7.9～7.18 下午1:30～4:30)','1':'基础班2(7.26～8.4 下午1:30～4:30)','2':'提高班(8.13～8.22 下午1:30～4:30)'};
+            changeOption(JiaoJiangPy);
+        }
+
+    }
+    function changeOption(options){
+        let obj=document.getElementById('course_level');
+        obj.options.length=0;
+        for(let k in options) {
+            obj.options.add(new Option(options[k],k));
+        }
+        /*
+        let opts=obj.getElementsByTagName("option");
+        opts[1].selected = true;
+         */
+    }
+</script>
+{% endblock %}

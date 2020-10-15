@@ -1,0 +1,7 @@
+<p>您好 {{ user.username }},</p>
+<p> <b>欢迎注册作业管理系统</b></p>
+<p>请点击以下地址进行确认<br>
+    <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">点我点我！</a></p>
+<p>如果不是您注册了该帐号，请忽略此邮件</p>
+<p>——BobHuang</p>
+<p><small>别勿回复该邮件,谢谢</small></p>
