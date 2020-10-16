@@ -13,15 +13,14 @@ class UploadForm(FlaskForm):
     studentID = StringField('学号', validators=[DataRequired()])
     course = SelectField(
         label='科目',
-        choices=[('计算机导论', '计算机导论'),
-                 ('操作系统', '操作系统')
+        choices=[('计算机导论', '计算机导论')
                  ],
         coerce=str
     )
     homeWork = SelectField(
-        label='实验名称',
-        choices=[('实验一', '实验一'),
-                 ('实验二', '实验二')
+        label='作业名称',
+        choices=[('作业一', '作业一'),
+                 ('作业二', '作业二')
                  ],
         coerce=str
     )
