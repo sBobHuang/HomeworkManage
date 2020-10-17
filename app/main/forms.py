@@ -19,8 +19,8 @@ class UploadForm(FlaskForm):
     )
     homeWork = SelectField(
         label='作业名称',
-        choices=[('作业一', '作业一'),
-                 ('作业二', '作业二')
+        choices=[('作业1', '作业1'),
+                 ('作业2', '作业2')
                  ],
         coerce=str
     )
