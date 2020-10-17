@@ -8,7 +8,7 @@ from . import main
 from .api_exception import RegisterSuccess
 from .forms import UploadForm
 from ..fuc import safe_copy, extendedInfoArrayAdd
-from ..models import Student
+from ..models import Student, FileRecord
 from .. import db
 
 basedir = os.path.abspath(os.path.dirname(__file__))  # 获取当前项目的绝对路径
@@ -18,7 +18,16 @@ basedir = os.path.abspath(os.path.dirname(__file__))  # 获取当前项目的绝
 def index():
     form = UploadForm()
     if form.validate_on_submit():
-        file_dir = os.path.join(basedir, "../../ZY", form.course.data, form.homeWork.data)  # 拼接成合法文件夹地址
+        student_query = Student.query.filter_by(id=form.studentID.data).first()
+        if student_query is None:
+            flash('学号填写错误')
+            return render_template('index.html', form=form)
+        student_query = Student.query.filter_by(id=form.studentID.data, real_name=form.name.data).first()
+        if student_query is None:
+            flash('学号与姓名不匹配')
+            return render_template('index.html', form=form)
+        file_dir = os.path.join(basedir, "../../ZY", form.course.data, form.homeWork.data,
+                                student_query.course_names)  # 拼接成合法文件夹地址
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)  # 文件夹不存在就创建
         filename = form.file.data.filename
@@ -26,6 +35,14 @@ def index():
         filename, file_type = file
         new_filename = form.studentID.data + '_' + form.name.data + '_' + form.homeWork.data + file_type
         safe_copy(file_dir, new_filename, form)
+        fileRecord = FileRecord(
+            student_id=student_query.id,
+            real_name=student_query.real_name,
+            home_work_id=int(form.homeWork.data[2:]),
+            courseName=student_query.course_names
+        )
+        db.session.add(fileRecord)
+        db.session.commit()
         flash('作业上传成功')
     return render_template('index.html', form=form)
 

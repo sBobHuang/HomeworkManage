@@ -14,6 +14,8 @@ basedir = os.path.join(basedir, "../../")
 def exportAllHomeWork():
     save_filename1 = '作业导出' + datetime.now().strftime('%m-%d_%H_%M_%S') + '.zip'
     save_filename = os.path.join(basedir, 'Download', save_filename1)
+    if not os.path.exists(os.path.join(basedir, 'Download')):
+        os.makedirs(os.path.join(basedir, 'Download'))  # 文件夹不存在就创建
     make_zip(os.path.join(basedir, 'ZY'), save_filename)
     print(save_filename1)
     return send_file(save_filename, as_attachment=True, attachment_filename=save_filename1)
