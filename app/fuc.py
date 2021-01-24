@@ -140,3 +140,14 @@ def addCourseNames(course_name):
         course_names=current_term+course_name.replace('计算机', '') + str(course_id)
     )
     db.session.add(course_info)
+
+
+def get_filelist(dire, Filelist):
+    newDir = dire
+    if os.path.isfile(dire):
+        Filelist.append(dire)
+    elif os.path.isdir(dire):
+        for s in os.listdir(dire):
+            newDir = os.path.join(dire, s)
+            get_filelist(newDir, Filelist)
+    return Filelist

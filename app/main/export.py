@@ -91,6 +91,6 @@ def exportOneHomeWork(fileRecord):
 
     if not os.path.exists(os.path.join(basedir, 'Download')):
         os.makedirs(os.path.join(basedir, 'Download'))  # 文件夹不存在就创建
-    make_zip(os.path.join(basedir, 'ZY',fileRecord.course_names,'作业'+str(fileRecord.home_work_id+1)), save_filename)
+    make_zip(os.path.join(basedir, 'ZY', fileRecord.course_names,'作业'+str(fileRecord.home_work_id+1)), save_filename)
     print(save_filename1)
     return send_file(save_filename, as_attachment=True, attachment_filename=save_filename1)
