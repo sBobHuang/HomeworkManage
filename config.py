@@ -9,13 +9,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    CURRENT_TERM = '204'
+    CURRENT_TERM = '20上'
     CURRENT_PAY_TYPE = [0, 0, 0]
     SECRET_KEY = "BobHuang"
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     FLASK_MAIL_SUBJECT_PREFIX = '[Flask]'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    FLASK_ADMIN = "****"
+    FLASK_ADMIN = None
     FLASK_POSTS_PER_PAGE = 10
 
     @staticmethod
