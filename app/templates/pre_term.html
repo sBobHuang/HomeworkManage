@@ -17,7 +17,7 @@
                             <td> <h4>20{{ i[0][0:2] }}年 </h4> </td>
                             {% for j in i %}
                                 <td>
-                                    <a href="{{ j }}">
+                                    <a href="{{ url_for('auth.admin',query_term=j) }}">
                                         <h4>{{ courseInfoIDStrSet[j] }}</h4>
                                     </a>
                                 </td>

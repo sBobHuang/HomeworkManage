@@ -12,3 +12,13 @@
 </div>
 {% endif %}
 {% endblock %}
+{% block scripts %}
+{{ super() }}
+<script>
+    $('#confirm-delete').on('show.bs.modal', function (e) {
+        $(this).find('.modal-body').text('确定删除 作业'+$(e.relatedTarget).data('data')+' ？')
+        $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    });
+
+</script>
+{% endblock %}
