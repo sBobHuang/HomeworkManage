@@ -9,11 +9,9 @@ from app.auth.views import admin
 from . import main
 from .api_exception import RegisterSuccess
 from .forms import UploadForm
-from ..fuc import extendedInfoArrayAdd,courseInfoIDToStr,getSubmitHomeWork
+from ..fuc import extendedInfoArrayAdd,courseInfoIDToStr,getSubmitHomeWork,get_filelist
 from ..models import Student, FileRecord
 from .. import db
-
-basedir = os.path.abspath(os.path.dirname(__file__))  # 获取当前项目的绝对路径
 
 
 @main.route('/', methods=['POST', 'GET'])
@@ -33,7 +31,8 @@ def index():
         if student_query is None:
             flash('学号与姓名不匹配')
             return render_template('index.html', form=form)
-        file_dir = os.path.join(basedir, "../../ZY", form.course.data, form.homeWork.data,
+        basedir = current_app.config['BASE_DIR']
+        file_dir = os.path.join(basedir, "ZY", form.course.data, form.homeWork.data,
                                 student_query.course_names)  # 拼接成合法文件夹地址
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)  # 文件夹不存在就创建
@@ -51,7 +50,8 @@ def index():
             student_id=student_query.id,
             real_name=student_query.real_name,
             home_work_id=int(form.homeWork.data[2:]),
-            course_names=student_query.course_names
+            course_names=student_query.course_names,
+            file_name=os.path.join(file_dir, new_filename)
         )
         db.session.add(fileRecord)
         db.session.commit()
@@ -105,3 +105,27 @@ def preTerm():
 @login_required
 def mainAdmin():
     return admin()
+
+
+@main.route('/fillFileName')
+@login_required
+def fillFileName():
+    students_query = Student.query.filter_by().all()
+    basedir = current_app.config['BASE_DIR']
+    filelist = get_filelist(os.path.join(basedir, "ZY"),[])
+    for stu in students_query:
+        files_query = FileRecord.query.filter_by(student_id=stu.id, course_names=stu.course_names).order_by(
+            FileRecord.home_work_id).all()
+        for i in range(1, 3):
+            tot = 0
+            for file in files_query:
+                if file.home_work_id == i:
+                    filename = file.student_id + '_' + file.real_name + '_作业' + str(i)
+                    if tot:
+                        filename = filename + '_' + str(tot)
+                    tot = tot + 1
+                    for j in filelist:
+                        if filename in j:
+                            file.file_name = j
+                            break
+    return RegisterSuccess('更新成功')
