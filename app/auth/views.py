@@ -9,7 +9,8 @@ from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
     extendedInfoToDic, extendedInfoAdd, extendedInfoDel, getCourseNames, \
     addCourseName, addCourseNames
 from . import auth
-from ..main.export import exportOneHomeWork
+from ..main.export import exportOneHomeWorks
+
 
 @auth.before_app_request
 def before_request():
@@ -97,23 +98,21 @@ def courseManage():
             max_homework_id = max([int(i) for i in homework_dic.keys()])
         course.extended_info = extendedInfoAdd(course.extended_info, max_homework_id+1, 1)
     homework_del_id = request.args.get('homework_del_id', None, type=str)
+    course = CourseInfo.query.filter_by(course_names=course_names).first()
     if homework_del_id is not None:
-        course = CourseInfo.query.filter_by(course_names=course_names).first()
         course.extended_info = extendedInfoDel(course.extended_info, homework_del_id)
     homework_pause_id = request.args.get('homework_pause_id', None, type=str)
     if homework_pause_id is not None:
-        course = CourseInfo.query.filter_by(course_names=course_names).first()
         course.extended_info = extendedInfoAdd(course.extended_info, homework_pause_id, 0)
     homework_continue_id = request.args.get('homework_continue_id', None, type=str)
     if homework_continue_id is not None:
-        course = CourseInfo.query.filter_by(course_names=course_names).first()
         course.extended_info = extendedInfoAdd(course.extended_info, homework_continue_id, 1)
     student_query = Student.query.filter_by(course_names=course_names).all()
     export = request.args.get('export', None, type=bool)
-    homework_export_id = request.args.get('homework_export_id', None, type=bool)
+    homework_export_id = request.args.get('homework_export_id', None, type=str)
     if export is not None and export is True > 0:
         if homework_export_id is not None:
-            exportOneHomeWork()
+            return exportOneHomeWorks(course.course_name, course_names, '作业'+homework_export_id)
     homeWorkManageLabels = ['作业名称', '删除', '暂停接收', '已交作业人数', '打包下载']
     courseManageLabels = ['序号', '学号', '姓名', '班级']
     homeWorkContent = homeWorkShow(course_names)

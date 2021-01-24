@@ -32,8 +32,9 @@ def index():
             flash('学号与姓名不匹配')
             return render_template('index.html', form=form)
         basedir = current_app.config['BASE_DIR']
-        file_dir = os.path.join(basedir, "ZY", form.course.data, form.homeWork.data,
-                                student_query.course_names)  # 拼接成合法文件夹地址
+        file_dir = os.path.join(basedir, "ZY", form.course.data,
+                                student_query.course_names,
+                                form.homeWork.data)  # 拼接成合法文件夹地址
         if not os.path.exists(file_dir):
             os.makedirs(file_dir)  # 文件夹不存在就创建
         filename = form.file.data.filename
@@ -112,7 +113,7 @@ def mainAdmin():
 def fillFileName():
     students_query = Student.query.filter_by().all()
     basedir = current_app.config['BASE_DIR']
-    filelist = get_filelist(os.path.join(basedir, "ZY"),[])
+    filelist = get_filelist(os.path.join(basedir, "ZY"), [])
     for stu in students_query:
         files_query = FileRecord.query.filter_by(student_id=stu.id, course_names=stu.course_names).order_by(
             FileRecord.home_work_id).all()
