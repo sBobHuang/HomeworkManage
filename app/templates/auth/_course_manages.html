@@ -87,8 +87,7 @@
                             {% if j == '未提交' %}
                                 <td style="color:red">未提交</td>
                             {% else %}
-                                <td><a href='{{url_for(".courseManage",
-                                        query_term=query_term,page=pagination.page,file_id=j[1],export=True)}}'>{{ j[0] }}</a>
+                                <td><a href='/exportOneHomeWork/{{j[1] }}' target="_blank">{{ j[0] }}</a>
                                 </td>
                             {% endif %}
                             {% else %}

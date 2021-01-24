@@ -1,4 +1,5 @@
 import os
+from flask import current_app
 from flask import make_response
 from flask import send_file
 from flask_moment import datetime
@@ -11,19 +12,17 @@ import io
 import pandas as pd
 from pandas import ExcelWriter
 import numpy as np
-
-basedir = os.path.abspath(os.path.dirname(__file__))  # 获取当前项目的绝对路径
-basedir = os.path.join(basedir, "../../")
+from urllib.parse import quote
 
 
 @main.route('/export', methods=['GET', 'POST'])
 def exportAllHomeWork():
-    save_filename1 = '作业导出' + datetime.now().strftime('%m-%d_%H_%M_%S') + '.zip'
+    basedir = current_app.config['BASE_DIR']
+    save_filename1 = '全部作业导出-' + datetime.now().strftime('%m-%d_%H_%M_%S') + '.zip'
     save_filename = os.path.join(basedir, 'Download', save_filename1)
     if not os.path.exists(os.path.join(basedir, 'Download')):
         os.makedirs(os.path.join(basedir, 'Download'))  # 文件夹不存在就创建
     make_zip(os.path.join(basedir, 'ZY'), save_filename)
-    print(save_filename1)
     return send_file(save_filename, as_attachment=True, attachment_filename=save_filename1)
 
 
@@ -78,19 +77,28 @@ def exportHomeWorkTable(course_names):
     # return send_file(out.getvalue(), as_attachment=True, attachment_filename=course_names+'作业完成情况.xlsx')
     resp = make_response(out.getvalue())
     # 设置response的header,让浏览器解析为文件下载行为
-    resp.headers['Content-Disposition'] = 'attachement; filename*=UTF-8"{}"'.format(course_names)
+    resp.headers['Content-Disposition'] = 'attachment; filename*=UTF-8"{}"'.format(course_names)
     resp.headers['Content-Type'] = 'application/vnd.ms-excel; charset=UTF-8'
 
     return resp
 
 
-def exportOneHomeWork(fileRecord):
+@main.route('/exportOneHomeWork/<homework_export_id>', methods=['GET', 'POST'])
+def exportOneHomeWork(homework_export_id):
+    files_query = FileRecord.query.filter_by(id=homework_export_id).first()
+    resp = make_response(send_file(files_query.file_name))
+    file_name = os.path.split(files_query.file_name)[1]
+    resp.headers['Content-Disposition'] = 'attachment;filename={0}'.format(quote(file_name))
+    return resp
 
-    save_filename1 = '作业导出' + datetime.now().strftime('%m-%d_%H_%M_%S') + '.zip'
-    save_filename = os.path.join(basedir, 'Download', '')
 
-    if not os.path.exists(os.path.join(basedir, 'Download')):
-        os.makedirs(os.path.join(basedir, 'Download'))  # 文件夹不存在就创建
-    make_zip(os.path.join(basedir, 'ZY', fileRecord.course_names,'作业'+str(fileRecord.home_work_id+1)), save_filename)
-    print(save_filename1)
-    return send_file(save_filename, as_attachment=True, attachment_filename=save_filename1)
+def exportOneHomeWorks(course_name, course_names, homework_export_id):
+    basedir = current_app.config['BASE_DIR']
+    save_filename1 = '作业导出-' + course_names+'-'+homework_export_id + '.zip'
+    save_filename = os.path.join(basedir, 'Download', save_filename1)
+    file_name = os.path.join(basedir, 'ZY', course_name, course_names, homework_export_id)
+    print(file_name)
+    make_zip(file_name, save_filename)
+    resp = make_response(send_file(save_filename))
+    resp.headers['Content-Disposition'] = 'attachment;filename={0}'.format(quote(save_filename1))
+    return resp
