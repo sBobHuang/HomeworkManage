@@ -28,6 +28,9 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
+                {% if current_user.is_authenticated %}
+                     <li><a href="{{ url_for('auth.logout') }}">退出</a></li>
+                {% endif %}
                 <li><a href="/">首页</a></li>
             </ul>
         </div>
