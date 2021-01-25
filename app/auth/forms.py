@@ -1,6 +1,7 @@
 from flask_pagedown.fields import PageDownField
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, IntegerField
+from flask_wtf.file import FileRequired, FileAllowed
+from wtforms import StringField, PasswordField, FileField, BooleanField, SubmitField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo
 
 from ..models import User
@@ -28,3 +29,10 @@ class AddCoursesForm(FlaskForm):
         coerce=str
     )
     submit = SubmitField('添加')
+
+
+class UploadCoursesStus(FlaskForm):
+    form_title = '导入班级名单'
+    form_body = '上传需为Excel表格，第一列为学号，第二列为姓名，第三列为行政班，无表头'
+    file = FileField('上传文件', validators=[FileRequired(), FileAllowed(['xlsx', 'xls'])])
+    submit = SubmitField('提交')

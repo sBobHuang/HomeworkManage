@@ -102,3 +102,12 @@ def exportOneHomeWorks(course_name, course_names, homework_export_id):
     resp = make_response(send_file(save_filename))
     resp.headers['Content-Disposition'] = 'attachment;filename={0}'.format(quote(save_filename1))
     return resp
+
+
+@main.route('/exportModel', methods=['GET', 'POST'])
+def exportModel():
+    basedir = current_app.config['BASE_DIR']
+    file_name = os.path.join(basedir, '班级样表.xlsx')
+    resp = make_response(send_file(file_name))
+    resp.headers['Content-Disposition'] = 'attachment;filename={0}'.format(quote('班级样表.xlsx'))
+    return resp

@@ -2,7 +2,7 @@ from flask import render_template, redirect, request, url_for, flash, current_ap
 from flask_login import current_user
 from flask_login import login_user, logout_user, login_required
 from flask_moment import datetime
-from .forms import LoginForm, AddCourseForm, AddCoursesForm
+from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus
 from ..models import User, CourseInfo, Student
 
 from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
@@ -10,6 +10,9 @@ from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
     addCourseName, addCourseNames
 from . import auth
 from ..main.export import exportOneHomeWorks
+import os
+from .. import db
+from openpyxl import load_workbook
 
 
 @auth.before_app_request
@@ -79,7 +82,7 @@ def admin():
                            forms=forms)
 
 
-@auth.route('/courseManage', methods=['GET'])
+@auth.route('/courseManage', methods=['GET', 'POST'])
 @login_required
 def courseManage():
     page = request.args.get('page', 1, type=int)
@@ -88,6 +91,34 @@ def courseManage():
     new_homework = request.args.get('new_homework', None, type=bool)
     pagination = CourseInfo.query.filter_by(course_period=query_term, disabled=False).order_by(CourseInfo.course_names).paginate(page, per_page=1)
     course_names = pagination.items[0].course_names
+    form = UploadCoursesStus()
+    if form.validate_on_submit():
+        basedir = current_app.config['BASE_DIR']
+        filename = form.file.data.filename
+        file = os.path.splitext(filename)
+        filename, file_type = file
+        save_filename1 = '班级名单上传-' + course_names + file_type
+        file_dir = os.path.join(basedir, "Upload")  # 拼接成合法文件夹地址
+        if not os.path.exists(file_dir):
+            os.makedirs(file_dir)  # 文件夹不存在就创建
+        save_filename = os.path.join(file_dir, save_filename1)
+        form.file.data.save(save_filename)
+        wb = load_workbook(save_filename)
+        ws = wb.get_sheet_by_name(wb.get_sheet_names()[0])
+        for row in ws.rows:
+            # print(row[0].value, row[1].value, row[2].value)
+            student = Student(
+                id=row[0].value,
+                real_name=row[1].value,
+                class_name=row[2].value,
+            )
+            student.course_names = course_names
+            db.session.add(student)
+            try:
+                db.session.commit()
+            except:
+                db.session.rollback()
+                print(row[1].value, '已插入')
     if new_homework is not None and new_homework is True:
         course = CourseInfo.query.filter_by(course_names=course_names).first()
         homework_dic = extendedInfoToDic(course.extended_info)
@@ -125,4 +156,5 @@ def courseManage():
                            courseContent=courseManageShow(student_query, homeWorkContent),
                            homeWorkContent=homeWorkContent,
                            pagination=pagination,
-                           query_term=query_term)
+                           query_term=query_term,
+                           form=form)

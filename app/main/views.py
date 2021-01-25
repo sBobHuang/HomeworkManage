@@ -12,6 +12,7 @@ from .forms import UploadForm
 from ..fuc import extendedInfoArrayAdd,courseInfoIDToStr,getSubmitHomeWork,get_filelist
 from ..models import Student, FileRecord
 from .. import db
+from flask_moment import datetime
 
 
 @main.route('/', methods=['POST', 'GET'])
@@ -41,21 +42,29 @@ def index():
         file = os.path.splitext(filename)
         filename, file_type = file
         new_filename = form.studentID.data + '_' + form.name.data + '_' + form.homeWork.data + file_type
-        if not os.path.exists(os.path.join(file_dir, new_filename)):
+        files_query = FileRecord.query.filter_by(student_id=student_query.id,
+                                                 course_names=student_query.course_names,
+                                                 home_work_id=int(form.homeWork.data[2:])).first()
+        if files_query is None:
             form.file.data.save(os.path.join(file_dir, new_filename))
             flash('作业上传成功')
+            fileRecord = FileRecord(
+                student_id=student_query.id,
+                real_name=student_query.real_name,
+                home_work_id=int(form.homeWork.data[2:]),
+                course_names=student_query.course_names,
+                file_name=os.path.join(file_dir, new_filename)
+            )
+            db.session.add(fileRecord)
         else:
+            print(files_query.file_name)
+            os.remove(files_query.file_name)
+            files_query.file_name = os.path.join(file_dir, new_filename)
+            files_query.created_at = datetime.utcnow()
             flash("您已成功覆盖上次提交")
             form.file.data.save(os.path.join(file_dir, new_filename))
-        fileRecord = FileRecord(
-            student_id=student_query.id,
-            real_name=student_query.real_name,
-            home_work_id=int(form.homeWork.data[2:]),
-            course_names=student_query.course_names,
-            file_name=os.path.join(file_dir, new_filename)
-        )
-        db.session.add(fileRecord)
         db.session.commit()
+        # if not os.path.exists(os.path.join(file_dir, new_filename)):
     return render_template('index.html', form=form)
 
 
