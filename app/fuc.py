@@ -92,7 +92,9 @@ def courseManageShow(students, homeworks):
 
 
 def homeWorkShow(course_names):
-    course = CourseInfo.query.filter_by(course_names=course_names).first()
+    course = CourseInfo.query.filter_by(course_names=course_names).all()
+    if len(course) == 0:
+        return []
     return course.getZY()
 
 

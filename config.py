@@ -9,7 +9,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    CURRENT_TERM = '20上'
+    CURRENT_TERM = '20下'
     BASE_DIR = basedir
     SECRET_KEY = "BobHuang"
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True

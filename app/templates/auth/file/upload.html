@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}作业上交系统{% endblock %}
+
+{% block page_content %}
+    <div class="page-header">
+        <a href="{{ url_for('auth.file_download') }}">下载</a>
+    </div>
+    <div class="col-md-5">
+    {{ wtf.quick_form(form) }}
+    </div>
+
+{% endblock %}
