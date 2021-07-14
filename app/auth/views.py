@@ -188,7 +188,7 @@ def file_upload():
             form.file.data.save(os.path.join(file_dir, filename))
         db.session.commit()
         # if not os.path.exists(os.path.join(file_dir, new_filename)):
-    return render_template('auth/file/upload.html', form=form)
+    return render_template('auth/file_du/upload.html', form=form)
 
 
 @auth.route('/file_download', methods=['GET', 'POST'])
@@ -204,7 +204,7 @@ def file_download():
              course.created_at.strftime("%m/%d")
              ]
         )
-    return render_template('auth/file/download.html',
+    return render_template('auth/file_du/download.html',
                            courseManageLabels=courseManageLabels,
                            courseContent=courseContent
                            )
