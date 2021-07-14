@@ -188,7 +188,7 @@ def file_upload():
             form.file.data.save(os.path.join(file_dir, filename))
         db.session.commit()
         # if not os.path.exists(os.path.join(file_dir, new_filename)):
-    return render_template('auth/file/upload.html', form=form)
+    return render_template('auth/file_du/upload.html', form=form)
 
 
 @auth.route('/file_download', methods=['GET', 'POST'])
@@ -204,7 +204,56 @@ def file_download():
              course.created_at.strftime("%m/%d")
              ]
         )
-    return render_template('auth/file/download.html',
+    return render_template('auth/file_du/download.html',
+                           courseManageLabels=courseManageLabels,
+                           courseContent=courseContent
+                           )
+
+
+@auth.route('/oi_upload', methods=['POST', 'GET'])
+def oi_upload():
+    form = UploadForm()
+    if form.validate_on_submit():
+        basedir = current_app.config['BASE_DIR']
+        file_dir = os.path.join(basedir, "OI")  # 拼接成合法文件夹地址
+        if not os.path.exists(file_dir):
+            os.makedirs(file_dir)  # 文件夹不存在就创建
+        filename = form.file.data.filename
+        files_query = FileRecord.query.filter_by(file_name=os.path.join(file_dir, filename)).first()
+        if files_query is None:
+            form.file.data.save(os.path.join(file_dir, filename))
+            flash('作业上传成功')
+            fileRecord = FileRecord(
+                course_names='oi_upload',
+                real_name=filename,
+                file_name=os.path.join(file_dir, filename)
+            )
+            db.session.add(fileRecord)
+        else:
+            print(files_query.file_name)
+            os.remove(files_query.file_name)
+            files_query.file_name = os.path.join(file_dir, filename)
+            files_query.created_at = datetime.utcnow()
+            flash("您已成功覆盖上次提交")
+            form.file.data.save(os.path.join(file_dir, filename))
+        db.session.commit()
+        # if not os.path.exists(os.path.join(file_dir, new_filename)):
+    return render_template('auth/file_du/upload.html', form=form)
+
+
+@auth.route('/oi_download', methods=['GET', 'POST'])
+def oi_download():
+    courses = FileRecord.query.filter_by(course_names='oi_upload').order_by(FileRecord.created_at.desc()).all()
+    courseManageLabels = ['编号', '文件名', '上传时间']
+    courseContent = []
+    for course in courses:
+        courseContent.append(
+            [course.id,
+             course.real_name,
+             course.created_at.strftime("%m/%d")
+             ]
+        )
+    return render_template('auth/file_du/download.html',
                            courseManageLabels=courseManageLabels,
                            courseContent=courseContent
                            )
