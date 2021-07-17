@@ -95,7 +95,7 @@ def homeWorkShow(course_names):
     course = CourseInfo.query.filter_by(course_names=course_names).all()
     if len(course) == 0:
         return []
-    return course.getZY()
+    return course[0].getZY()
 
 
 def getCurrentCourseInfos():
