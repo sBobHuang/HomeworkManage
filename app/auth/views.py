@@ -211,7 +211,7 @@ def file_download():
 
 
 @auth.route('/oi_upload', methods=['POST', 'GET'])
-def file_upload():
+def oi_upload():
     form = UploadForm()
     if form.validate_on_submit():
         basedir = current_app.config['BASE_DIR']
