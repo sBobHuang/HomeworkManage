@@ -2,7 +2,7 @@ from flask import render_template, redirect, request, url_for, flash, current_ap
 from flask_login import current_user
 from flask_login import login_user, logout_user, login_required
 from flask_moment import datetime
-from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus, UploadForm
+from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus, UploadForm, AccountForm, DelAccountForm
 from ..models import User, CourseInfo, Student, FileRecord
 
 from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
@@ -13,7 +13,8 @@ from ..main.export import exportOneHomeWorks
 import os
 from .. import db
 from openpyxl import load_workbook
-
+from sqlalchemy import func
+from datetime import timedelta
 
 @auth.before_app_request
 def before_request():
@@ -194,6 +195,15 @@ def file_upload():
 @auth.route('/file_download', methods=['GET', 'POST'])
 @login_required
 def file_download():
+    del_id = request.args.get('del_id', None, type=str)
+    files_query = FileRecord.query.filter_by(id=del_id).first()
+    if files_query is not None:
+        db.session.delete(files_query)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        os.remove(files_query.file_name)
     courses = FileRecord.query.filter_by(course_names='file_upload').order_by(FileRecord.created_at.desc()).all()
     courseManageLabels = ['编号', '文件名', '上传时间']
     courseContent = []
@@ -243,9 +253,18 @@ def oi_upload():
 
 @auth.route('/oi_download', methods=['GET', 'POST'])
 def oi_download():
-    courses = FileRecord.query.filter_by(course_names='oi_upload').order_by(FileRecord.created_at.desc()).all()
     courseManageLabels = ['编号', '文件名', '上传时间']
     courseContent = []
+    del_id = request.args.get('del_id', None, type=str)
+    files_query = FileRecord.query.filter_by(id=del_id).first()
+    if files_query is not None:
+        db.session.delete(files_query)
+        try:
+            db.session.commit()
+        except:
+            db.session.rollback()
+        os.remove(files_query.file_name)
+    courses = FileRecord.query.filter_by(course_names='oi_upload').order_by(FileRecord.created_at.desc()).all()
     for course in courses:
         courseContent.append(
             [course.id,
@@ -257,3 +276,101 @@ def oi_download():
                            courseManageLabels=courseManageLabels,
                            courseContent=courseContent
                            )
+
+@auth.route('/acc', methods=['GET', 'POST'])
+@login_required
+def acc():
+    account_form = AccountForm()
+    if account_form.validate_on_submit():
+        account_last = Account.query.filter().order_by(Account.id.desc()).first()
+        if account_last.show_name == account_form.account_name.data \
+                and account_form.account_fee.data == abs(account_last.fee) \
+                and account_last.last_updated_at > datetime.now() - timedelta(seconds=40):
+            flash('重复插入')
+        else:
+            account = Account(
+                show_name=account_form.account_name.data,
+                pay_type=account_form.pay_type.data,
+            )
+            if account_form.income.data:
+                account.fee = account_form.account_fee.data
+            else:
+                account.fee = - account_form.account_fee.data
+                account.refund_fee = account_form.account_fee.data
+            db.session.add(account)
+            try:
+                db.session.commit()
+                flash('该账务已插入')
+            except:
+                db.session.rollback()
+                flash('该账务插入失败')
+    del_accout_form = DelAccountForm()
+    if del_accout_form.validate_on_submit():
+        account_del = Account.query.filter(Account.id==del_accout_form.account_id.data).first()
+        try:
+            db.session.delete(account_del)
+            flash(account_del.show_name+'已删除')
+        except:
+            flash(account_del.show_name+'删除失败')
+    quartReportLabels = ['编号', '项目', '收入', '支出', '支付方式', '时间']
+    quartReportContent = quartReportPayShow()
+    quartReportContent.append(['', '共计',calSummary(quartReportContent, 2),
+                               calSummary(quartReportContent, 3),
+                               '',
+                               datetime.now().strftime("%m/%d")])
+    quartReportContent.append(['','结余', str(quartReportContent[-1][2] - quartReportContent[-1][3])])
+    quartReportContent.append(['','招商卡结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type=='招商卡').first()[0]])
+    quartReportContent.append(['','微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type=='微信').first()[0]])
+    return render_template('auth/quart_report.html',
+                           form=account_form,
+                           del_form=del_accout_form,
+                           quartReportLabels=quartReportLabels,
+                           quartReport=quartReportContent)
+
+
+class Account(db.Model):
+    __tablename__ = 'accounts'
+    id = db.Column(db.Integer, primary_key=True)
+    show_name = db.Column(db.Text())
+    pay_type = db.Column(db.Text())
+    fee = db.Column(db.Integer)
+    refund_fee = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    last_updated_at = db.Column(db.DateTime(), default=datetime.now)
+
+    def __init__(self, **kwargs):
+        super(Account, self).__init__(**kwargs)
+
+
+def quartReportPayShow():
+    reportPay = []
+    accounts_query = Account.query.filter().order_by(Account.id.desc()).all()
+    for account in accounts_query:
+        if account.fee < 0:
+            reportPay.append([
+                account.id,
+                account.show_name,
+                '',
+                account.refund_fee,
+                account.pay_type,
+                account.created_at.strftime("%m/%d")
+            ])
+        else:
+            reportPay.append([
+                account.id,
+                account.show_name,
+                account.fee,
+                '',
+                account.pay_type,
+                account.created_at.strftime("%m/%d")
+            ])
+    return reportPay
+
+
+def calSummary(content, i):
+    summary = 0
+    for item in content:
+        if item[i] == '':
+            continue
+        summary = summary + item[i]
+    return summary

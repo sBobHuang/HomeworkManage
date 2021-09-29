@@ -10,13 +10,16 @@
             <a href="{{ url_for('auth.file_upload') }}">上传</a>
         {% endif %}
     </div>
-    <div class="col-md-8 col-sm-12 col-xs-12">
+    <div class="col-md-5 col-sm-12 col-xs-12">
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
                     <tr align="center">
                         {% for i in courseManageLabels %}
                             <td>{{ i }}</td>
+                            {% if loop.index==2 and current_user.is_authenticated%}
+                                <td>删除</td>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                     </thead>
@@ -29,10 +32,15 @@
                                     <td>
                                         <a href='/exportOneHomeWork/{{i[0] }}' target="_blank">{{ i[1] }}</a>
                                     </td>
+                                    {% if current_user.is_authenticated %}
+                                        <td><a href="?del_id={{ i[0] }}" >删除</a>
+                                        </td>
+                                    {% endif %}
                                 {% elif loop.index>2 %}
                                         <td>{{ j }}</td>
                                 {% endif %}
                             {% endfor %}
+
                         </tr>
                     {% endfor %}
                     </tbody>

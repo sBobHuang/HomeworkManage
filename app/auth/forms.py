@@ -1,4 +1,3 @@
-from flask_pagedown.fields import PageDownField
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, FileField, BooleanField, SubmitField, SelectField, IntegerField
@@ -47,3 +46,23 @@ class UploadForm(FlaskForm):
     )
     file = FileField('上传文件', validators=[FileRequired()])
     submit = SubmitField('提交')
+
+
+class AccountForm(FlaskForm):
+    form_title = '新增账务'
+    account_name = StringField('账务名称', validators=[DataRequired()])
+    account_fee = IntegerField('金额', validators=[DataRequired()])
+    pay_type = SelectField(
+        label='支付方式',
+        choices=[('招商卡', '招商卡'),
+                 ('微信', '微信')
+                 ],
+        coerce=str
+    )
+    income = BooleanField('收入(默认支出)')
+    account_submit = SubmitField('提交')
+
+
+class DelAccountForm(FlaskForm):
+    account_id = IntegerField('删除账务ID', validators=[DataRequired()])
+    account_submit = SubmitField('提交')
