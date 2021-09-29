@@ -1,9 +1,9 @@
 import os
-from flask import current_app
+from flask import render_template, redirect, request, url_for, flash, current_app
 from flask import make_response
 from flask import send_file
 from flask_moment import datetime
-
+from flask_login import login_required,current_user
 
 from . import main
 from ..fuc import make_zip
@@ -15,6 +15,7 @@ import numpy as np
 from urllib.parse import quote
 
 
+@login_required
 @main.route('/export', methods=['GET', 'POST'])
 def exportAllHomeWork():
     basedir = current_app.config['BASE_DIR']
@@ -26,6 +27,7 @@ def exportAllHomeWork():
     return send_file(save_filename, as_attachment=True, attachment_filename=save_filename1)
 
 
+@login_required
 @main.route('/export/<course_names>', methods=['GET', 'POST'])
 def exportHomeWorkTable(course_names):
     print(course_names)
@@ -86,6 +88,9 @@ def exportHomeWorkTable(course_names):
 @main.route('/exportOneHomeWork/<homework_export_id>', methods=['GET', 'POST'])
 def exportOneHomeWork(homework_export_id):
     files_query = FileRecord.query.filter_by(id=homework_export_id).first()
+    if files_query.course_names != "oi_upload" and current_user.is_authenticated is False:
+        return redirect(url_for('auth.login'))
+
     resp = make_response(send_file(files_query.file_name))
     file_name = os.path.split(files_query.file_name)[1]
     resp.headers['Content-Disposition'] = 'attachment;filename={0}'.format(quote(file_name))

@@ -39,5 +39,11 @@ class UploadCoursesStus(FlaskForm):
 
 
 class UploadForm(FlaskForm):
+    course = SelectField(
+        label='科目',
+        choices=[('计算机导论', '计算机导论')
+                 ],
+        coerce=str
+    )
     file = FileField('上传文件', validators=[FileRequired()])
     submit = SubmitField('提交')
