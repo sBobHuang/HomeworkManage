@@ -312,7 +312,7 @@ def acc():
             flash(account_del.show_name+'已删除')
         except:
             flash(account_del.show_name+'删除失败')
-    quartReportLabels = ['编号', '项目', '收入', '支出', '支付方式', '时间']
+    quartReportLabels = ['ID', '项目', '收入', '支出', '方式', '时间']
     quartReportContent = quartReportPayShow()
     quartReportContent.append(['', '共计',calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
