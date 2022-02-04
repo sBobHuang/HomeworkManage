@@ -277,10 +277,14 @@ def oi_download():
                            courseContent=courseContent
                            )
 
+
 @auth.route('/acc', methods=['GET', 'POST'])
 @login_required
 def acc():
     account_form = AccountForm()
+    # current_time = datetime.now()
+    # current_month = f'{current_time.year()}-{current_time.month()}'
+    # query_term = request.args.get('query_term', current_term, type=str)
     if account_form.validate_on_submit():
         account_last = Account.query.filter().order_by(Account.id.desc()).first()
         if account_last.show_name == account_form.account_name.data \

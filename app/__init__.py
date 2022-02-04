@@ -50,7 +50,7 @@ def change_cdn_domestic(tar_app):
 
     def change_one(tar_lib, tar_ver, fallback):
         tar_js = ConditionalCDN('BOOTSTRAP_SERVE_LOCAL', fallback,
-                                WebCDN('//cdn.bootcss.com/' + tar_lib + '/' + tar_ver + '/'))
+                                WebCDN('//cdn.tzoj.xyz/' + tar_lib + '/' + tar_ver + '/'))
         tar_app.extensions['bootstrap']['cdns'][tar_lib] = tar_js
 
     libs = {'jquery': {'ver': JQUERY_VERSION, 'fallback': local},
