@@ -310,7 +310,7 @@ def acc():
                 flash('该账务插入失败')
     del_accout_form = DelAccountForm()
     if del_accout_form.validate_on_submit():
-        account_del = Account.query.filter(Account.id==del_accout_form.account_id.data).first()
+        account_del = Account.query.filter(Account.id == del_accout_form.account_id.data).first()
         try:
             db.session.delete(account_del)
             flash(account_del.show_name+'已删除')
@@ -318,13 +318,13 @@ def acc():
             flash(account_del.show_name+'删除失败')
     quartReportLabels = ['ID', '项目', '收入', '支出', '方式', '时间']
     quartReportContent = quartReportPayShow()
-    quartReportContent.append(['', '共计',calSummary(quartReportContent, 2),
+    quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
                                '',
                                datetime.now().strftime("%m/%d")])
-    quartReportContent.append(['','结余', str(quartReportContent[-1][2] - quartReportContent[-1][3])])
-    quartReportContent.append(['','招商卡结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type=='招商卡').first()[0]])
-    quartReportContent.append(['','微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type=='微信').first()[0]])
+    quartReportContent.append(['','结余', db.session.query(func.sum(Account.fee)).first()[0]])
+    quartReportContent.append(['','招商卡结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '招商卡').first()[0]])
+    quartReportContent.append(['','微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '微信').first()[0]])
     return render_template('auth/quart_report.html',
                            form=account_form,
                            del_form=del_accout_form,
@@ -348,7 +348,10 @@ class Account(db.Model):
 
 def quartReportPayShow():
     reportPay = []
-    accounts_query = Account.query.filter().order_by(Account.id.desc()).all()
+    dt = datetime.now()
+    dt_cur_month = datetime(dt.year, dt.month, 1)
+    accounts_query = Account.query.filter(Account.created_at > dt_cur_month).order_by(Account.id.desc()).all()
+    print(dt_cur_month)
     for account in accounts_query:
         if account.fee < 0:
             reportPay.append([
