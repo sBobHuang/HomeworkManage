@@ -282,9 +282,6 @@ def oi_download():
 @login_required
 def acc():
     account_form = AccountForm()
-    # current_time = datetime.now()
-    # current_month = f'{current_time.year()}-{current_time.month()}'
-    # query_term = request.args.get('query_term', current_term, type=str)
     if account_form.validate_on_submit():
         account_last = Account.query.filter().order_by(Account.id.desc()).first()
         if account_last.show_name == account_form.account_name.data \
@@ -317,7 +314,10 @@ def acc():
         except:
             flash(account_del.show_name+'删除失败')
     quartReportLabels = ['ID', '项目', '收入', '支出', '方式', '时间']
-    quartReportContent = quartReportPayShow()
+    dt = datetime.now()
+    current_term = dt.strftime('%Y%m')
+    query_term = request.args.get('query_term', current_term, type=str)
+    quartReportContent = quartReportPayShow(int(query_term[0:4]), int(query_term[4:]))
     quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
                                '',
@@ -346,12 +346,14 @@ class Account(db.Model):
         super(Account, self).__init__(**kwargs)
 
 
-def quartReportPayShow():
+def quartReportPayShow(year, month):
     reportPay = []
-    dt = datetime.now()
-    dt_cur_month = datetime(dt.year, dt.month, 1)
+    try:
+        dt_cur_month = datetime(year, month, 1)
+    except:
+        dt = datetime.now()
+        dt_cur_month = datetime(dt.year, dt.month, 1)
     accounts_query = Account.query.filter(Account.created_at > dt_cur_month).order_by(Account.id.desc()).all()
-    print(dt_cur_month)
     for account in accounts_query:
         if account.fee < 0:
             reportPay.append([
