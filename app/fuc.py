@@ -170,6 +170,7 @@ def add_institution_infos_fuc(institution_name, institution_url, job_category):
     institution_info.job_category = job_category
     db.session.add(institution_info)
     db.session.commit()
+    spider_institution_jobs_fuc(institution_info)
 
 
 def spider_institution_jobs_fuc(institution_info):

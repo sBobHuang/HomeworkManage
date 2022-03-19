@@ -410,7 +410,6 @@ def institution():
 
 
 @auth.route('/institutionManage', methods=['GET', 'POST'])
-@login_required
 def institution_manage():
     query_institution_id = request.args.get('query_institution', 1, type=int)
     query_institution_info = InstitutionInfo.query.filter_by(institution_id=query_institution_id).first()
