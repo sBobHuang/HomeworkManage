@@ -2,12 +2,13 @@ from flask import render_template, redirect, request, url_for, flash, current_ap
 from flask_login import current_user
 from flask_login import login_user, logout_user, login_required
 from flask_moment import datetime
-from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus, UploadForm, AccountForm, DelAccountForm
-from ..models import User, CourseInfo, Student, FileRecord
+from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus, UploadForm, AccountForm, DelAccountForm, \
+    AddInstitutionForm
+from ..models import User, CourseInfo, Student, FileRecord, InstitutionInfo, InstitutionJobInfo
 
 from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
     extendedInfoToDic, extendedInfoAdd, extendedInfoDel, getCourseNames, \
-    addCourseName, addCourseNames
+    addCourseName, addCourseNames, add_institution_infos_fuc, spider_institution_jobs_fuc
 from . import auth
 from ..main.export import exportOneHomeWorks
 import os
@@ -383,3 +384,66 @@ def calSummary(content, i):
             continue
         summary = summary + item[i]
     return summary
+
+
+@auth.route('/institution', methods=['GET', 'POST'])
+@login_required
+def institution():
+    current_term = current_app.config['CURRENT_TERM']
+    if current_user.is_administrator() is False:
+        return redirect(url_for('main.index'))
+    query_term = request.args.get('query_term', current_term, type=str)
+    add_institution_form = AddInstitutionForm()
+    if add_institution_form.validate_on_submit():
+        flash(add_institution_form.institution_name.data + '已添加')
+        add_institution_infos_fuc(add_institution_form.institution_name.data,
+                                  add_institution_form.institution_url.data,
+                                  add_institution_form.job_category.data)
+    forms = [add_institution_form]
+    query_institution_infos = InstitutionInfo.query.filter_by(institution_period=query_term, disabled=False).all()
+    statusLabels = ['编号', '招聘名称', '爬虫地址', '报考类别']
+    return render_template('auth/institution.html',
+                           statuslabels=statusLabels,
+                           query_institution_infos=query_institution_infos,
+                           query_term=query_term,
+                           forms=forms)
+
+
+@auth.route('/institutionManage', methods=['GET', 'POST'])
+@login_required
+def institution_manage():
+    query_institution_id = request.args.get('query_institution', 1, type=int)
+    query_institution_info = InstitutionInfo.query.filter_by(institution_id=query_institution_id).first()
+    statuslabels = ['序号', '部门名称', '职位名称', '招聘人数', '报名成功', '审核通过', '未审核', '总人数']
+    form = UploadCoursesStus()
+    form.form_body = '上传需为Excel表格，第一列为岗位代码，第二列为岗位类别，第三列为招聘人数，无表头'
+    form.form_title = '导入岗位信息'
+    if form.validate_on_submit():
+        save_filename = os.path.join(current_app.config['BASE_DIR'], "Upload", form.file.data.filename)
+        form.file.data.save(save_filename)
+        wb = load_workbook(save_filename)
+        ws = wb.get_sheet_by_name(wb.get_sheet_names()[0])
+        for row in ws.rows:
+            institution_job_info = InstitutionJobInfo.query. \
+                filter_by(institution_id=query_institution_id,
+                          job_id=row[0].value).first()
+            if institution_job_info is not None:
+                institution_job_info.job_category = row[1].value
+                institution_job_info.job_num = row[2].value
+                institution_job_info.education = row[3].value
+                institution_job_info.target = row[4].value
+                db.session.add(institution_job_info)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+    forms = [form]
+    query_institution_job_infos = InstitutionJobInfo.query.filter_by(institution_id=query_institution_id,
+                                                                     job_category=query_institution_info.job_category).\
+        order_by((InstitutionJobInfo.total_num/InstitutionJobInfo.job_num).desc()).all()
+
+    return render_template('auth/institution_manage.html',
+                           statuslabels=statuslabels,
+                           query_institution_info=query_institution_info,
+                           job_infos=query_institution_job_infos,
+                           forms=forms)

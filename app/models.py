@@ -222,3 +222,41 @@ class CourseNames(db.Model):
     def __init__(self, **kwargs):
         # 每门课程信息对象被调用时都会调用该方法
         super(CourseNames, self).__init__(**kwargs)
+
+
+# 网站报名信息
+class InstitutionInfo(db.Model):
+    __tablename__ = 'institution_infos'
+    institution_id = db.Column(db.Integer, primary_key=True)
+    institution_period = db.Column(db.Text())
+    institution_name = db.Column(db.Text())
+    institution_url = db.Column(db.Text())
+    job_category = db.Column(db.Text())
+    extended_info = db.Column(db.Text())
+    disabled = db.Column(db.Boolean, default=False)
+
+    def __init__(self, **kwargs):
+        super(InstitutionInfo, self).__init__(**kwargs)
+
+
+class InstitutionJobInfo(db.Model):
+    __tablename__ = 'institution_job_infos'
+    institution_job_id = db.Column(db.Integer, primary_key=True)
+    institution_id = db.Column(db.Integer)
+    department_name = db.Column(db.Text())
+    job_name = db.Column(db.Text())
+    job_category = db.Column(db.Text())
+    job_id = db.Column(db.Text())
+    job_num = db.Column(db.Integer)
+    confirmed = db.Column(db.Integer)
+    un_confirmed = db.Column(db.Integer)
+    succeeded = db.Column(db.Integer)
+    total_num = db.Column(db.Integer)
+    education = db.Column(db.Text())
+    target = db.Column(db.Text())
+
+    def __init__(self, **kwargs):
+        super(InstitutionJobInfo, self).__init__(**kwargs)
+
+    def cal_total(self):
+        self.total_num = self.confirmed + self.un_confirmed + self.succeeded

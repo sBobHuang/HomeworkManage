@@ -1,8 +1,11 @@
-from app.models import CourseInfo, CourseNames
+from app.models import CourseInfo, CourseNames, InstitutionInfo, InstitutionJobInfo
 from flask import current_app
 import json
 import os
 import zipfile
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
 from . import db
 
 
@@ -153,3 +156,57 @@ def get_filelist(dire, Filelist):
             newDir = os.path.join(dire, s)
             get_filelist(newDir, Filelist)
     return Filelist
+
+
+def add_institution_infos_fuc(institution_name, institution_url, job_category):
+    institution_info = InstitutionInfo.query.filter_by(institution_name=institution_name).first()
+    if institution_info is None:
+        current_term = current_app.config.get('CURRENT_TERM')
+        institution_info = InstitutionInfo(
+            institution_period=current_term,
+            institution_name=institution_name,
+        )
+    institution_info.institution_url = institution_url
+    institution_info.job_category = job_category
+    db.session.add(institution_info)
+    db.session.commit()
+
+
+def spider_institution_jobs_fuc(institution_info):
+    print(datetime.now(), '进行了爬虫')
+    df = pd.read_html(get_content(institution_info.institution_url), header=0)[0]
+    for i in df.itertuples():
+        job_id = i.职位名称[i.职位名称.index('[')+1:i.职位名称.index(']')]
+        institution_job_info = InstitutionJobInfo.query.\
+            filter_by(institution_id=institution_info.institution_id,
+                      job_id=job_id).first()
+        if institution_job_info is None:
+            institution_job_info = InstitutionJobInfo(
+                institution_id=institution_info.institution_id,
+                department_name=i.部门名称,
+                job_name=i.职位名称[0:i.职位名称.index('[')],
+                job_id=job_id
+            )
+        institution_job_info.confirmed = i._3
+        institution_job_info.un_confirmed = i._4
+        institution_job_info.succeeded = i._5
+        institution_job_info.cal_total()
+        db.session.add(institution_job_info)
+        db.session.commit()
+
+
+def get_content(url):
+    response = requests.post(
+        url=url,
+        headers={
+            "User-Agent": 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/87.0.4280.163 Mobile/15E148 Safari/604.1',
+            "Sec-Fetch-Dest": "script",
+            "Accept": "*/*",
+            "Sec-Fetch-Site": "cross-site",
+            "Sec-Fetch-Mode": "no-cors",
+            "Accept-Language": "zh-CN,zh;q=0.9",
+            "Accept-Encoding": "gzip",
+        }
+    )
+    response.encoding = 'utf-8'
+    return response.text

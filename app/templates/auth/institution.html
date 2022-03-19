@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}事业单位招聘 - 管理员{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="col-md-8 col-sm-12 col-xs-12">
+            <div class="panel-heading">
+                <h3 align="center">{{ query_term_str }}事业单位监控情况</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr align="center">
+                        {% for i in statuslabels %}
+                            <td>{{ i }}</td>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in query_institution_infos %}
+                        <tr align="center">
+                            <td>{{ loop.index }}</td>
+                            <td><a href="{{ url_for('auth.institution_manage',query_institution=i.institution_id) }}">
+                                {{ i.institution_name }}</a>
+                            </td>
+                            <td><a href="{{ i.institution_url }}" target="_blank">
+                                    {{ i.institution_url }}</a>&ensp;
+                            </td>
+                            <td>
+                                {{ i.job_category }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="">
+
+    {% for form in forms %}
+        <div class="col-md-3 col-sm-12 col-xs-12">
+        <h3>{{ form.form_title }}</h3>
+        {% if form.form_body %}
+            <p style="color: red">{{ form.form_body }}</p>
+        {% endif %}
+        {{ wtf.quick_form(form) }}
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

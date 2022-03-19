@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}事业单位招聘 - 管理员{% endblock %}
+
+{% block page_content %}
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel-heading">
+
+                <h3 align="center">{{ query_institution_info.institution_name }}</h3>
+                <h4 align="right">
+                    <span style="font-size:small;color: deeppink; float :right">深粉色为本科应届生</span>
+                    <br><span style="font-size:small;color: #F15c11; float :right">橘色为研究生应届生</span>
+                    <br>{{ query_institution_info.job_category }} <a href="{{ query_institution_info.institution_url }}" target="_blank">
+                                    爬虫地址</a>
+                </h4>
+            </h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr align="center">
+                        {% for i in statuslabels %}
+                            <td>{{ i }}</td>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in job_infos %}
+                        <tr align="center">
+                            <td>{{ loop.index }}</td>
+                            <td>{{ i.department_name }}</td>
+                            <td>
+                            {% if '毕业生' in i.target and '本科' in i.education %}
+                            <span style="color: deeppink">
+                            {% elif '毕业生' in i.target and '研究生' in i.education %}
+                                <span style="color: #F15c11">
+                            {% else %}
+                                <span>
+                            {% endif %}
+                            {{ i.job_name }}</span>
+                            <td>{{ i.job_num }}</td>
+                            <td>{{ i.succeeded }}</td>
+                            <td>{{ i.confirmed }}</td>
+                            <td>{{ i.un_confirmed }}</td>
+                            <td>{{ i.total_num }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="">
+
+    {% for form in forms %}
+        <div class="col-md-5 col-sm-12 col-xs-12">
+        <h3>{{ form.form_title }}</h3>
+        {% if form.form_body %}
+            <p style="color: red">{{ form.form_body }}</p>
+        {% endif %}
+        {{ wtf.quick_form(form) }}
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

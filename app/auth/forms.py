@@ -3,8 +3,6 @@ from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import StringField, PasswordField, FileField, BooleanField, SubmitField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, EqualTo
 
-from ..models import User
-
 
 class LoginForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired(), Length(1, 64)])
@@ -66,3 +64,11 @@ class AccountForm(FlaskForm):
 class DelAccountForm(FlaskForm):
     account_id = IntegerField('删除账务ID', validators=[DataRequired()])
     account_submit = SubmitField('提交')
+
+
+class AddInstitutionForm(FlaskForm):
+    form_title = '添加招聘监控'
+    institution_name = StringField('招聘名称', validators=[DataRequired()])
+    institution_url = StringField('爬虫地址', validators=[DataRequired()])
+    job_category = StringField('报考类别', validators=[DataRequired()])
+    institution_submit = SubmitField('提交')

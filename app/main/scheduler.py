@@ -1,9 +1,14 @@
 from flask_apscheduler import APScheduler  # 主要插件
+from datetime import datetime, timedelta
+
 
 from app import create_app
 from config import bakSqlite
 from . import main
 from .api_exception import UpdateSuccess
+from ..fuc import spider_institution_jobs_fuc
+from ..models import InstitutionInfo
+
 
 APP = create_app('default')
 scheduler = APScheduler()
@@ -12,12 +17,17 @@ scheduler = APScheduler()
 def init_scheduler(app):
     scheduler.init_app(app)
     scheduler.start()
+    scheduler.add_job(func=spider, id='1', trigger='interval', minutes=5,
+                      replace_existing=True, next_run_time=datetime.now() + timedelta(seconds=5))
     scheduler.add_job(func=bakSqlite, id='3', trigger='interval', seconds=600,
                       replace_existing=True)
 
 
-def task1(a, b):
-    print('mession1')
+def spider():
+    global APP
+    with APP.app_context():
+        query_institution_info = InstitutionInfo.query.filter_by(institution_id=1).first()
+        spider_institution_jobs_fuc(query_institution_info)
 
 
 def task2():
