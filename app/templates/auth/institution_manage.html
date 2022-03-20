@@ -55,7 +55,7 @@
     {% if (job_infos | length)==0  %}
         <span style="color: red">请上传职位表</span>
     {% endif %}
-    {% if ccurrent_user.is_authenticated and current_user.is_administrator() %}
+    {% if current_user.is_authenticated and current_user.is_administrator() %}
     <div class="row" style="">
     {% for form in forms %}
         <div class="col-md-5 col-sm-12 col-xs-12">
