@@ -3,7 +3,7 @@ from flask_login import current_user
 from flask_login import login_user, logout_user, login_required
 from flask_moment import datetime
 from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus, UploadForm, AccountForm, DelAccountForm, \
-    AddInstitutionForm
+    AddInstitutionForm, CalculatorForm
 from ..models import User, CourseInfo, Student, FileRecord, InstitutionInfo, InstitutionJobInfo
 
 from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
@@ -439,10 +439,34 @@ def institution_manage():
     forms = [form]
     query_institution_job_infos = InstitutionJobInfo.query.filter_by(institution_id=query_institution_id,
                                                                      job_category=query_institution_info.job_category).\
-        order_by((InstitutionJobInfo.total_num/InstitutionJobInfo.job_num).desc()).all()
+        order_by((InstitutionJobInfo.succeeded/InstitutionJobInfo.job_num).desc()).all()
 
     return render_template('auth/institution_manage.html',
                            statuslabels=statuslabels,
                            query_institution_info=query_institution_info,
                            job_infos=query_institution_job_infos,
+                           forms=forms)
+
+
+@auth.route('/spiderInstitution', methods=['GET', 'POST'])
+def spider_institution():
+    spider_institution_id = request.args.get('spider_institution_id', 1, type=int)
+    query_institution_info = InstitutionInfo.query.filter_by(institution_id=spider_institution_id).first()
+    spider_institution_jobs_fuc(query_institution_info)
+    return redirect(url_for('auth.institution_manage', query_institution=spider_institution_id))
+
+
+@auth.route('/cal', methods=['GET', 'POST'])
+@login_required
+def calculator():
+    form = CalculatorForm()
+    if form.validate_on_submit():
+        try:
+            answer = eval(form.calculator_string.data)
+        except BaseException as e:
+            answer = e
+        finally:
+            flash(answer)
+    forms = [form]
+    return render_template('auth/calculator.html',
                            forms=forms)

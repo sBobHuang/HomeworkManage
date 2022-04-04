@@ -206,7 +206,7 @@ def get_content(url):
             "Sec-Fetch-Mode": "no-cors",
             "Accept-Language": "zh-CN,zh;q=0.9",
             "Accept-Encoding": "gzip",
-        }
-    )
+        },
+        verify=False)
     response.encoding = 'utf-8'
     return response.text

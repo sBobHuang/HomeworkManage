@@ -14,6 +14,10 @@
                     <br><span style="font-size:small;color: #F15c11; float :right">橘色为研究生应届生</span>
                     <br>{{ query_institution_info.job_category }} <a href="{{ query_institution_info.institution_url }}" target="_blank">
                                     爬虫地址</a>
+                    {% if current_user.is_authenticated and current_user.is_administrator() %}
+                        <a href="{{ url_for('auth.spider_institution',spider_institution_id=query_institution_info.institution_id) }}">
+                        手动爬虫更新</a>
+                    {% endif %}
                 </h4>
             </h4>
             </div>

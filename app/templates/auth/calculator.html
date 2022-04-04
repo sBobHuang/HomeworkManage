@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}计算器{% endblock %}
+
+{% block page_content %}
+
+    {% for form in forms %}
+        <div class="col-md-3 col-sm-12 col-xs-12">
+        <h3>{{ form.form_title }}</h3>
+        {{ wtf.quick_form(form) }}
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

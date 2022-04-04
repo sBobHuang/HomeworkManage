@@ -17,10 +17,10 @@ scheduler = APScheduler()
 def init_scheduler(app):
     scheduler.init_app(app)
     scheduler.start()
-    scheduler.add_job(func=spider, id='1', trigger='interval', minutes=5,
-                      replace_existing=True, next_run_time=datetime.now() + timedelta(seconds=5))
-    scheduler.add_job(func=bakSqlite, id='3', trigger='interval', seconds=600,
-                      replace_existing=True)
+    # scheduler.add_job(func=spider, id='1', trigger='interval', minutes=5,
+    #                   replace_existing=True, next_run_time=datetime.now() + timedelta(seconds=5))
+    # scheduler.add_job(func=bakSqlite, id='3', trigger='interval', seconds=600,
+    #                   replace_existing=True)
 
 
 def spider():
