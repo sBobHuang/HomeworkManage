@@ -3,7 +3,7 @@ from flask_login import current_user
 from flask_login import login_user, logout_user, login_required
 from flask_moment import datetime
 from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus, UploadForm, AccountForm, DelAccountForm, \
-    AddInstitutionForm, CalculatorForm
+    AddInstitutionForm
 from ..models import User, CourseInfo, Student, FileRecord, InstitutionInfo, InstitutionJobInfo
 
 from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
@@ -454,19 +454,3 @@ def spider_institution():
     query_institution_info = InstitutionInfo.query.filter_by(institution_id=spider_institution_id).first()
     spider_institution_jobs_fuc(query_institution_info)
     return redirect(url_for('auth.institution_manage', query_institution=spider_institution_id))
-
-
-@auth.route('/cal', methods=['GET', 'POST'])
-@login_required
-def calculator():
-    form = CalculatorForm()
-    if form.validate_on_submit():
-        try:
-            answer = eval(form.calculator_string.data)
-        except BaseException as e:
-            answer = e
-        finally:
-            flash(answer)
-    forms = [form]
-    return render_template('auth/calculator.html',
-                           forms=forms)

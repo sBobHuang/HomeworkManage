@@ -10,8 +10,8 @@ from flask_login import login_required
 from app.auth.views import admin
 from . import main
 from .api_exception import RegisterSuccess
-from .forms import UploadForm
-from ..fuc import extendedInfoArrayAdd,courseInfoIDToStr,getSubmitHomeWork,get_filelist
+from .forms import UploadForm, CalculatorForm
+from ..fuc import extendedInfoArrayAdd, courseInfoIDToStr, getSubmitHomeWork, get_filelist
 from ..models import Student, FileRecord
 from .. import db
 from flask_moment import datetime
@@ -166,3 +166,18 @@ def filter_headers(headers):
     excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection', 'access-control-allow-credentials', 'access-control-allow-origin']
     return [(name, value) for (name, value) in headers
             if name.lower() not in excluded_headers]
+
+
+@main.route('/cal', methods=['GET', 'POST'])
+def calculator():
+    form = CalculatorForm()
+    if form.validate_on_submit():
+        try:
+            answer = eval(form.calculator_string.data)
+        except BaseException as e:
+            answer = e
+        finally:
+            flash(answer)
+    forms = [form]
+    return render_template('auth/calculator.html',
+                           forms=forms)

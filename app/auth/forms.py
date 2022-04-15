@@ -73,8 +73,3 @@ class AddInstitutionForm(FlaskForm):
     job_category = StringField('报考类别', validators=[DataRequired()])
     institution_submit = SubmitField('提交')
 
-
-class CalculatorForm(FlaskForm):
-    form_title = '计算器'
-    calculator_string = StringField('算式', validators=[DataRequired()])
-    calculator_submit = SubmitField('提交查看结果')

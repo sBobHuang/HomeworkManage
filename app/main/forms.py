@@ -24,3 +24,9 @@ class UploadForm(FlaskForm):
     )
     file = FileField('上传文件', validators=[FileRequired()])
     submit = SubmitField('提交')
+
+
+class CalculatorForm(FlaskForm):
+    form_title = '计算器'
+    calculator_string = StringField('算式', validators=[DataRequired()])
+    calculator_submit = SubmitField('提交查看结果')
