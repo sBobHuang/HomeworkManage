@@ -49,6 +49,7 @@ class UploadForm(FlaskForm):
 class AccountForm(FlaskForm):
     form_title = '新增账务'
     account_name = StringField('账务名称', validators=[DataRequired()])
+    account_date = StringField('账务日期', validators=[DataRequired()])
     account_fee = IntegerField('金额', validators=[DataRequired()])
     pay_type = SelectField(
         label='支付方式',

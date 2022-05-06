@@ -299,6 +299,7 @@ def acc():
             else:
                 account.fee = - account_form.account_fee.data
                 account.refund_fee = account_form.account_fee.data
+            account.created_at = datetime.strptime(account_form.account_date.data, "%Y/%m/%d")
             db.session.add(account)
             try:
                 db.session.commit()
@@ -306,6 +307,8 @@ def acc():
             except:
                 db.session.rollback()
                 flash('该账务插入失败')
+    else:
+        account_form.account_date.data = datetime.now().strftime('%Y/%m/%d')
     del_accout_form = DelAccountForm()
     if del_accout_form.validate_on_submit():
         account_del = Account.query.filter(Account.id == del_accout_form.account_id.data).first()
@@ -354,7 +357,8 @@ def quartReportPayShow(year, month):
     except:
         dt = datetime.now()
         dt_cur_month = datetime(dt.year, dt.month, 1)
-    accounts_query = Account.query.filter(Account.created_at > dt_cur_month).order_by(Account.id.desc()).all()
+    accounts_query = Account.query.filter(Account.created_at >= dt_cur_month).order_by(Account.created_at.desc(),
+                                                                                       Account.id.desc()).all()
     for account in accounts_query:
         if account.fee < 0:
             reportPay.append([
