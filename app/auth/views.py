@@ -374,8 +374,11 @@ def quartReportPayShow(year, month):
     except:
         dt = datetime.now()
         dt_cur_month = datetime(dt.year, dt.month, 1)
-    accounts_query = Account.query.filter(Account.created_at >= dt_cur_month).order_by(Account.created_at.desc(),
-                                                                                       Account.id.desc()).all()
+
+    from dateutil.relativedelta import relativedelta
+    accounts_query = Account.query.filter(Account.created_at >= dt_cur_month,
+                                          Account.created_at < dt_cur_month+relativedelta(months=1)).\
+        order_by(Account.created_at.desc(), Account.id.desc()).all()
     for account in accounts_query:
         if account.fee < 0:
             reportPay.append([
