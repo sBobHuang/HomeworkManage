@@ -349,6 +349,7 @@ def acc():
         ['', '微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '微信').first()[0]])
     return render_template('auth/quart_report.html',
                            form=account_form,
+                           query_term=query_term,
                            del_form=del_accout_form,
                            quartReportLabels=quartReportLabels,
                            quartReport=quartReportContent)
