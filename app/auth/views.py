@@ -17,6 +17,7 @@ from openpyxl import load_workbook
 from sqlalchemy import func
 from datetime import timedelta
 
+
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated:
@@ -62,7 +63,7 @@ def admin():
     add_course_form = AddCourseForm()
     add_courses_form = AddCoursesForm()
     if add_course_form.validate_on_submit():
-        flash(add_course_form.course_name.data+'已添加')
+        flash(add_course_form.course_name.data + '已添加')
         addCourseName(add_course_form.course_name.data)
     course_names = getCourseNames()
     if len(course_names) > 0:
@@ -74,7 +75,8 @@ def admin():
         flash(add_courses_form.course.data + '新班级已添加')
         addCourseNames(add_courses_form.course.data)
     forms = [add_course_form, add_courses_form]
-    currentCourseInfos = CourseInfo.query.filter_by(course_period=query_term, disabled=False).order_by(CourseInfo.course_names).all()
+    currentCourseInfos = CourseInfo.query.filter_by(course_period=query_term, disabled=False).order_by(
+        CourseInfo.course_names).all()
     statusLabels = ['课程名称', '班级', '班级人数', '正在收的作业']
     statusContent = [CourseInfo.showStatus(i) for i in currentCourseInfos]
     return render_template('auth/admin.html',
@@ -91,7 +93,8 @@ def courseManage():
     current_term = current_app.config['CURRENT_TERM']
     query_term = request.args.get('query_term', current_term, type=str)
     new_homework = request.args.get('new_homework', None, type=bool)
-    pagination = CourseInfo.query.filter_by(course_period=query_term, disabled=False).order_by(CourseInfo.course_names).paginate(page, per_page=1)
+    pagination = CourseInfo.query.filter_by(course_period=query_term, disabled=False).order_by(
+        CourseInfo.course_names).paginate(page, per_page=1)
     course_names = pagination.items[0].course_names
     form = UploadCoursesStus()
     if form.validate_on_submit():
@@ -129,7 +132,7 @@ def courseManage():
             max_homework_id = 0
         else:
             max_homework_id = max([int(i) for i in homework_dic.keys()])
-        course.extended_info = extendedInfoAdd(course.extended_info, max_homework_id+1, 1)
+        course.extended_info = extendedInfoAdd(course.extended_info, max_homework_id + 1, 1)
     homework_del_id = request.args.get('homework_del_id', None, type=str)
     course = CourseInfo.query.filter_by(course_names=course_names).first()
     if homework_del_id is not None:
@@ -145,12 +148,12 @@ def courseManage():
     homework_export_id = request.args.get('homework_export_id', None, type=str)
     if export is not None and export is True > 0:
         if homework_export_id is not None:
-            return exportOneHomeWorks(course.course_name, course_names, '作业'+homework_export_id)
+            return exportOneHomeWorks(course.course_name, course_names, '作业' + homework_export_id)
     homeWorkManageLabels = ['作业名称', '删除', '暂停接收', '已交作业人数', '打包下载']
     courseManageLabels = ['序号', '学号', '姓名', '班级']
     homeWorkContent = homeWorkShow(course_names)
     for homework in homeWorkContent:
-        courseManageLabels.append('作业'+homework+'上交时间')
+        courseManageLabels.append('作业' + homework + '上交时间')
     return render_template('auth/course_manage.html',
                            course=pagination.items[0].course_names,
                            homeWorkManageLabels=homeWorkManageLabels,
@@ -285,23 +288,35 @@ def acc():
     account_form = AccountForm()
     if account_form.validate_on_submit():
         account_last = Account.query.filter().order_by(Account.id.desc()).first()
+        account_fee = account_form.account_fee.data
+        if not account_form.income.data:
+            account_fee = -account_fee
         if account_last.show_name == account_form.account_name.data \
-                and account_form.account_fee.data == abs(account_last.fee) \
+                and account_fee == account_last.fee \
                 and account_last.last_updated_at > datetime.now() - timedelta(seconds=40):
             flash('重复插入')
         else:
             account = Account(
                 show_name=account_form.account_name.data,
                 pay_type=account_form.pay_type.data,
+                fee=account_fee
             )
-            if account_form.income.data:
-                account.fee = account_form.account_fee.data
-            else:
-                account.fee = - account_form.account_fee.data
-                account.refund_fee = account_form.account_fee.data
+            if not account_form.income.data:
+                account.refund_fee = -account_fee
             account.created_at = datetime.strptime(account_form.account_date.data, "%Y/%m/%d")
             db.session.add(account)
             try:
+                if account.show_name == '转入微信':
+                    account_form.account_name.data = ''
+                    account_form.pay_type.data = '微信'
+                    account_new = Account(
+                        show_name=account.show_name,
+                        pay_type='微信',
+                        fee=-account_fee,
+                        refund_fee=account_fee,
+                        created_at=account.created_at,
+                    )
+                    db.session.add(account_new)
                 db.session.commit()
                 flash('该账务已插入')
             except:
@@ -314,9 +329,9 @@ def acc():
         account_del = Account.query.filter(Account.id == del_accout_form.account_id.data).first()
         try:
             db.session.delete(account_del)
-            flash(account_del.show_name+'已删除')
+            flash(account_del.show_name + '已删除')
         except:
-            flash(account_del.show_name+'删除失败')
+            flash(account_del.show_name + '删除失败')
     quartReportLabels = ['ID', '项目', '收入', '支出', '方式', '时间']
     dt = datetime.now()
     current_term = dt.strftime('%Y%m')
@@ -326,9 +341,11 @@ def acc():
                                calSummary(quartReportContent, 3),
                                '',
                                datetime.now().strftime("%m/%d")])
-    quartReportContent.append(['','结余', db.session.query(func.sum(Account.fee)).first()[0]])
-    quartReportContent.append(['','招商卡结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '招商卡').first()[0]])
-    quartReportContent.append(['','微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '微信').first()[0]])
+    quartReportContent.append(['', '结余', db.session.query(func.sum(Account.fee)).first()[0]])
+    quartReportContent.append(
+        ['', '招商卡结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '招商卡').first()[0]])
+    quartReportContent.append(
+        ['', '微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '微信').first()[0]])
     return render_template('auth/quart_report.html',
                            form=account_form,
                            del_form=del_accout_form,
@@ -383,8 +400,9 @@ def quartReportPayShow(year, month):
 
 def calSummary(content, i):
     summary = 0
+    disable_set = ['转入', '转入微信', '招商卡结余', '微信结余']
     for item in content:
-        if item[i] == '':
+        if item[i] == '' or item[1] in disable_set:
             continue
         summary = summary + item[i]
     return summary
@@ -442,8 +460,8 @@ def institution_manage():
                     db.session.rollback()
     forms = [form]
     query_institution_job_infos = InstitutionJobInfo.query.filter_by(institution_id=query_institution_id,
-                                                                     job_category=query_institution_info.job_category).\
-        order_by((InstitutionJobInfo.succeeded/InstitutionJobInfo.job_num).desc()).all()
+                                                                     job_category=query_institution_info.job_category). \
+        order_by((InstitutionJobInfo.succeeded / InstitutionJobInfo.job_num).desc()).all()
 
     return render_template('auth/institution_manage.html',
                            statuslabels=statuslabels,

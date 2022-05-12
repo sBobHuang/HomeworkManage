@@ -30,7 +30,11 @@
                 </thead>
                 <tbody>
                 {% for i in quartReport %}
-                    <tr align="center">
+                    <tr align="center"
+                    {% if '转入' in i[1] %}
+                            style="user-select: none;background-color: rgba(38,53,82,0.06);"
+                    {% endif %}
+                    >
                         {% for j in i %}
                             {% if j==0 %}
                                 <td></td>
