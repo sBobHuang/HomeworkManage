@@ -336,7 +336,8 @@ def acc():
     dt = datetime.now()
     current_term = dt.strftime('%Y%m')
     query_term = request.args.get('query_term', current_term, type=str)
-    quartReportContent = quartReportPayShow(int(query_term[0:4]), int(query_term[4:]))
+    query_year = request.args.get('query_year', None, type=bool)
+    quartReportContent = quartReportPayShow(int(query_term[0:4]), int(query_term[4:]), query_year)
     quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
                                '',
@@ -367,17 +368,20 @@ class Account(db.Model):
         super(Account, self).__init__(**kwargs)
 
 
-def quartReportPayShow(year, month):
+def quartReportPayShow(year, month, query_year):
     reportPay = []
     try:
         dt_cur_month = datetime(year, month, 1)
     except:
         dt = datetime.now()
         dt_cur_month = datetime(dt.year, dt.month, 1)
-
-    from dateutil.relativedelta import relativedelta
+    if query_year:
+        dt_end = datetime(dt_cur_month.year+1, 1, 1)
+    else:
+        from dateutil.relativedelta import relativedelta
+        dt_end = dt_cur_month+relativedelta(months=1)
     accounts_query = Account.query.filter(Account.created_at >= dt_cur_month,
-                                          Account.created_at < dt_cur_month+relativedelta(months=1)).\
+                                          Account.created_at < dt_end).\
         order_by(Account.created_at.desc(), Account.id.desc()).all()
     for account in accounts_query:
         if account.fee < 0:
