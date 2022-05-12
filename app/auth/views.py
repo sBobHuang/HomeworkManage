@@ -400,7 +400,7 @@ def quartReportPayShow(year, month):
 
 def calSummary(content, i):
     summary = 0
-    disable_set = ['转入', '转入微信', '招商卡结余', '微信结余']
+    disable_set = ['转入', '转入微信', '招商卡结余', '微信结余', '余额宝-房租', '分成']
     for item in content:
         if item[i] == '' or item[1] in disable_set:
             continue
