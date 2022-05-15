@@ -337,19 +337,30 @@ def acc():
     current_term = dt.strftime('%Y%m')
     query_term = request.args.get('query_term', current_term, type=str)
     query_year = request.args.get('query_year', None, type=bool)
-    quartReportContent = quartReportPayShow(int(query_term[0:4]), int(query_term[4:]), query_year)
+    dt_cur_month = query_term_to_datetime(query_term)
+    if query_year:
+        dt_end = datetime(dt_cur_month.year+1, 1, 1)
+    else:
+        dt_end = dt_cur_month+relativedelta(months=1)
+    quartReportContent = quartReportPayShow(dt_cur_month, dt_end)
     quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
                                '',
-                               datetime.now().strftime("%m/%d")])
-    quartReportContent.append(['', '结余', db.session.query(func.sum(Account.fee)).first()[0]])
+                               ''])
     quartReportContent.append(
-        ['', '招商卡结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '招商卡').first()[0]])
+        ['', '结余', db.session.query(func.sum(Account.fee)).
+                              filter(Account.created_at < dt_end).first()[0]])
     quartReportContent.append(
-        ['', '微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '微信').first()[0]])
+        ['', '招商卡结余', db.session.query(func.sum(Account.fee)).
+            filter(Account.created_at < dt_end, Account.pay_type == '招商卡').first()[0]])
+    quartReportContent.append(
+        ['', '微信结余', db.session.query(func.sum(Account.fee)).
+            filter(Account.created_at < dt_end, Account.pay_type == '微信').first()[0]])
     return render_template('auth/quart_report.html',
                            form=account_form,
-                           query_terms=[current_term, (dt-relativedelta(months=1)).strftime('%Y%m'), f'{dt.year}01'],
+                           query_terms=[current_term, (dt_cur_month-relativedelta(months=1)).strftime('%Y%m'),
+                                        (dt_cur_month+relativedelta(months=1)).strftime('%Y%m'), f'{dt.year}01',
+                                        query_term[0:4] + ' 全年' if query_year else query_term],
                            del_form=del_accout_form,
                            quartReportLabels=quartReportLabels,
                            quartReport=quartReportContent)
@@ -369,17 +380,8 @@ class Account(db.Model):
         super(Account, self).__init__(**kwargs)
 
 
-def quartReportPayShow(year, month, query_year):
+def quartReportPayShow(dt_cur_month, dt_end):
     reportPay = []
-    try:
-        dt_cur_month = datetime(year, month, 1)
-    except:
-        dt = datetime.now()
-        dt_cur_month = datetime(dt.year, dt.month, 1)
-    if query_year:
-        dt_end = datetime(dt_cur_month.year+1, 1, 1)
-    else:
-        dt_end = dt_cur_month+relativedelta(months=1)
     accounts_query = Account.query.filter(Account.created_at >= dt_cur_month,
                                           Account.created_at < dt_end).\
         order_by(Account.created_at.desc(), Account.id.desc()).all()
@@ -483,3 +485,12 @@ def spider_institution():
     query_institution_info = InstitutionInfo.query.filter_by(institution_id=spider_institution_id).first()
     spider_institution_jobs_fuc(query_institution_info)
     return redirect(url_for('auth.institution_manage', query_institution=spider_institution_id))
+
+
+def query_term_to_datetime(query_term):
+    try:
+        dt_cur_month = datetime(int(query_term[0:4]), int(query_term[4:]), 1)
+    except:
+        dt = datetime.now()
+        dt_cur_month = datetime(dt.year, dt.month, 1)
+    return dt_cur_month
