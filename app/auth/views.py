@@ -16,7 +16,7 @@ from .. import db
 from openpyxl import load_workbook
 from sqlalchemy import func
 from datetime import timedelta
-
+from dateutil.relativedelta import relativedelta
 
 @auth.before_app_request
 def before_request():
@@ -349,7 +349,7 @@ def acc():
         ['', '微信结余', db.session.query(func.sum(Account.fee)).filter(Account.pay_type == '微信').first()[0]])
     return render_template('auth/quart_report.html',
                            form=account_form,
-                           query_term=query_term,
+                           query_terms=[current_term, (dt-relativedelta(months=1)).strftime('%Y%m'), f'{dt.year}01'],
                            del_form=del_accout_form,
                            quartReportLabels=quartReportLabels,
                            quartReport=quartReportContent)
@@ -379,7 +379,6 @@ def quartReportPayShow(year, month, query_year):
     if query_year:
         dt_end = datetime(dt_cur_month.year+1, 1, 1)
     else:
-        from dateutil.relativedelta import relativedelta
         dt_end = dt_cur_month+relativedelta(months=1)
     accounts_query = Account.query.filter(Account.created_at >= dt_cur_month,
                                           Account.created_at < dt_end).\
