@@ -148,7 +148,7 @@ def ide_send(path=''):
     url = request.url
     if request.method == 'OPTIONS':
         return Response('', 200, '')
-    url = 'https://judge0-ce.p.rapidapi.com' + url[url.index('/submissions'):]
+    url = 'http://150.158.55.167:2358' + url[url.index('/submissions'):]
     payload_header = {
         'Content-Type': 'application/json',
     }
