@@ -148,18 +148,18 @@ def ide_send(path=''):
     url = request.url
     if request.method == 'OPTIONS':
         return Response('', 200, '')
-    url = 'https://api.judge0.com/' + url[url.index('/submissions'):]
+    url = 'http://150.158.55.167:2358' + url[url.index('/submissions'):]
     payload_header = {
         'Content-Type': 'application/json',
     }
-    with requests.request(
-            method=request.method,
-            url=url,
-            data=request.data,
-            headers=payload_header
-        ) as resp:
-        headers = filter_headers(resp.raw.headers.items())
-        return Response(resp.content, resp.status_code, headers)
+    resp = requests.request(
+        method=request.method,
+        url=url,
+        data=request.data,
+        headers=payload_header
+    )
+    headers = filter_headers(resp.raw.headers.items())
+    return Response(resp.content, resp.status_code, headers)
 
 
 def filter_headers(headers):
