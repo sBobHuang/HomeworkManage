@@ -173,6 +173,7 @@ def calculator():
     form = CalculatorForm()
     if form.validate_on_submit():
         try:
+            import random, math
             answer = eval(form.calculator_string.data)
         except BaseException as e:
             answer = e
