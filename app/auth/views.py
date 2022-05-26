@@ -288,7 +288,7 @@ def acc():
     account_form = AccountForm()
     if account_form.validate_on_submit():
         account_last = Account.query.filter().order_by(Account.id.desc()).first()
-        account_fee = account_form.account_fee.data
+        account_fee = eval(account_form.account_fee.data)
         if not account_form.income.data:
             account_fee = -account_fee
         if account_last.show_name == account_form.account_name.data \
@@ -319,7 +319,8 @@ def acc():
                     db.session.add(account_new)
                 db.session.commit()
                 flash('该账务已插入')
-            except:
+            except Exception as e:
+                print(e)
                 db.session.rollback()
                 flash('该账务插入失败')
     else:
