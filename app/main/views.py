@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
+import shutil
 
 import requests
 from flask import render_template, flash, request, current_app, Response
@@ -10,7 +11,7 @@ from flask_login import login_required
 from app.auth.views import admin
 from . import main
 from .api_exception import RegisterSuccess
-from .forms import UploadForm, CalculatorForm
+from .forms import UploadForm, CalculatorForm, DownloadForm
 from ..fuc import extendedInfoArrayAdd, courseInfoIDToStr, getSubmitHomeWork, get_filelist
 from ..models import Student, FileRecord
 from .. import db
@@ -182,3 +183,38 @@ def calculator():
     forms = [form]
     return render_template('auth/calculator.html',
                            forms=forms)
+
+
+@main.route('/download', methods=['GET', 'POST'])
+def download():
+    form = DownloadForm()
+    if form.validate_on_submit():
+        file_dir = os.path.join(current_app.config['BASE_DIR'], 'File')
+        temp_file_dir = os.path.join(file_dir, 't_down')
+        get_empty_file_dir(temp_file_dir)
+        res = os.system(f'cd {temp_file_dir}; wget {form.url.data}')
+        if res == 0:
+            filename = os.listdir(temp_file_dir)[0]
+            shutil.copyfile(os.path.join(temp_file_dir, filename), os.path.join(file_dir, filename))
+            fileRecord = FileRecord(
+                course_names='oi_upload',
+                real_name=filename,
+                file_name=os.path.join(file_dir, filename)
+            )
+            db.session.add(fileRecord)
+            flash(f'下载完成，文件名为{filename}')
+        else:
+            flash('下载失败')
+    return render_template('download.html', form=form)
+
+
+def get_last_file(file_dir):
+    file_list = os.listdir(file_dir)
+    return max(file_list, key=lambda file: os.path.getmtime(os.path.join(file_dir, file)))
+
+
+def get_empty_file_dir(file_dir):
+    if not os.path.exists(file_dir):
+        os.mkdir(file_dir)
+    for file in os.listdir(file_dir):
+        os.remove(os.path.join(file_dir, file))

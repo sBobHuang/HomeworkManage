@@ -30,3 +30,8 @@ class CalculatorForm(FlaskForm):
     form_title = '计算器'
     calculator_string = StringField('算式', validators=[DataRequired()])
     calculator_submit = SubmitField('提交查看结果')
+
+
+class DownloadForm(FlaskForm):
+    url = StringField('url', validators=[DataRequired(), Length(1, 200)])
+    submit = SubmitField('提交')

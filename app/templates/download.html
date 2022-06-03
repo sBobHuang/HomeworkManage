@@ -1,13 +1,9 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}监考后台管理系统 - 查询{% endblock %}
+{% block title %}离线下载{% endblock %}
 
 {% block page_content %}
-    <div class="page-header">
-        <h1>下载</h1>
-        <a href="https://pan.tzoj.xyz">下载盘</a>
-    </div>
     <div class="col-md-4">
         {{ wtf.quick_form(form) }}
     </div>
