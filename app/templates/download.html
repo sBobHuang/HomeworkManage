@@ -5,7 +5,7 @@
 
 {% block page_content %}
     <div style="font-size: x-large">
-    <a href="{{ url_for('auth.file_download') }}">所有文件下载链接 </a>
+    <a href="{{ url_for('auth.oi_download') }}">所有文件下载链接 </a>
     {% if form.download_id %}
         <a href='/exportOneHomeWork/{{form.download_id.data }}' target="_blank">下载刚上传的文件</a>
     {% endif %}
