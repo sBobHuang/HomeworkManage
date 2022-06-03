@@ -196,14 +196,14 @@ def download():
         if res == 0:
             filename = os.listdir(temp_file_dir)[0]
             shutil.copyfile(os.path.join(temp_file_dir, filename), os.path.join(file_dir, filename))
-            fileRecord = FileRecord(
+            file_record = FileRecord(
                 course_names='oi_upload',
                 real_name=filename,
                 file_name=os.path.join(file_dir, filename)
             )
-            db.session.add(fileRecord)
+            db.session.add(file_record)
             db.session.commit()
-            form.download_id = FileRecord.id
+            form.download_id = file_record.id
             flash(f'下载完成，文件名为{filename}')
         else:
             flash('下载失败')
