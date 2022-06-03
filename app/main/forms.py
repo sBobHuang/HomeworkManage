@@ -34,4 +34,5 @@ class CalculatorForm(FlaskForm):
 
 class DownloadForm(FlaskForm):
     url = StringField('url', validators=[DataRequired(), Length(1, 200)])
+    download_id = None
     submit = SubmitField('提交')

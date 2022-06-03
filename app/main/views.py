@@ -202,10 +202,14 @@ def download():
                 file_name=os.path.join(file_dir, filename)
             )
             db.session.add(fileRecord)
+            db.session.commit()
+            form.download_id = FileRecord.id
             flash(f'下载完成，文件名为{filename}')
         else:
             flash('下载失败')
-    return render_template('download.html', form=form)
+    return render_template('download.html',
+                           form=form)
+
 
 
 def get_last_file(file_dir):

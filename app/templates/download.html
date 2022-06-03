@@ -4,6 +4,10 @@
 {% block title %}离线下载{% endblock %}
 
 {% block page_content %}
+    <a {{ url_for('auth.file_download') }}>所有文件下载链接 </a>
+    {% if form.download_id %}
+        <a href='/exportOneHomeWork/{{form.download_id }}' target="_blank">下载刚上传的文件</a>
+    {% endif %}
     <div class="col-md-4">
         {{ wtf.quick_form(form) }}
     </div>
