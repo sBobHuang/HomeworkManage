@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from app import create_app, db
-from app.main.scheduler import init_scheduler
 from flask_script import Manager, Shell
 from flask_migrate import MigrateCommand, Migrate
 from flask_cors import CORS
@@ -10,7 +9,6 @@ from flask_cors import CORS
 app = create_app('default')
 CORS(app, resources=r'/*')
 
-init_scheduler(app)
 
 manager = Manager(app)
 migrate = Migrate(app, db)

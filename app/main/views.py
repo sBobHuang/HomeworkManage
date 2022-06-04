@@ -211,7 +211,6 @@ def download():
                            form=form)
 
 
-
 def get_last_file(file_dir):
     file_list = os.listdir(file_dir)
     return max(file_list, key=lambda file: os.path.getmtime(os.path.join(file_dir, file)))
