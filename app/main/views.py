@@ -144,31 +144,6 @@ def fillFileName():
     return RegisterSuccess('更新成功')
 
 
-@main.route('/IDE/<path:path>', methods=['GET', 'OPTIONS', 'POST'])
-def ide_send(path=''):
-    url = request.url
-    if request.method == 'OPTIONS':
-        return Response('', 200, '')
-    url = 'http://150.158.55.167:2358' + url[url.index('/submissions'):]
-    payload_header = {
-        'Content-Type': 'application/json',
-    }
-    resp = requests.request(
-        method=request.method,
-        url=url,
-        data=request.data,
-        headers=payload_header
-    )
-    headers = filter_headers(resp.raw.headers.items())
-    return Response(resp.content, resp.status_code, headers)
-
-
-def filter_headers(headers):
-    excluded_headers = ['content-encoding', 'content-length', 'transfer-encoding', 'connection', 'access-control-allow-credentials', 'access-control-allow-origin']
-    return [(name, value) for (name, value) in headers
-            if name.lower() not in excluded_headers]
-
-
 @main.route('/cal', methods=['GET', 'POST'])
 def calculator():
     form = CalculatorForm()
