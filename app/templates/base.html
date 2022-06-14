@@ -51,9 +51,3 @@
 
 </div>
 {% endblock %}
-
-{% block scripts %}
-{{ super() }}
-{{ moment.include_moment(local_js="https://cdn.tzoj.xyz/moment.js/2.22.1/moment.min.js") }}
-{{ moment.lang('zh-CN')}}
-{% endblock %}

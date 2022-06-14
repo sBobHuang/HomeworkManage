@@ -7,17 +7,4 @@
     <div class="col-md-5">
     {{ wtf.quick_form(form) }}
     </div>
-<script>
-    function change() {
-        let locationselect=document.getElementById("location").selectedIndex;
-        if(locationselect == 0) {
-            let LinHaiFree={'0':'时段1(7.10 上午8:30～10:00)','1':'时段2(7.10 下午1:30～3:00)'};
-            changeOption(LinHaiFree);
-        }
-        if(locationselect == 1) {
-            let JiaoJiangFree={'0':'时段1(7.8 上午8:30～10:00)','1':'时段2(7.8 下午1:30～3:00)'};
-            changeOption(JiaoJiangFree);
-        }
-    }
-</script>
 {% endblock %}
