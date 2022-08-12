@@ -54,6 +54,7 @@ class AccountForm(FlaskForm):
     pay_type = SelectField(
         label='支付方式',
         choices=[('招商卡', '招商卡'),
+                 ('支付宝', '支付宝'),
                  ('微信', '微信')
                  ],
         coerce=str
