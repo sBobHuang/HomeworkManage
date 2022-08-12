@@ -287,42 +287,10 @@ def oi_download():
 def acc():
     account_form = AccountForm()
     if account_form.validate_on_submit():
-        account_last = Account.query.filter().order_by(Account.id.desc()).first()
-        account_fee = eval(account_form.account_fee.data)
-        if not account_form.income.data:
-            account_fee = -account_fee
-        if account_last.show_name == account_form.account_name.data \
-                and account_fee == account_last.fee \
-                and account_last.last_updated_at > datetime.now() - timedelta(seconds=40):
-            flash('重复插入')
+        if account_form.modify_account_id.data is not None:
+            modify_account_fuc(account_form)
         else:
-            account = Account(
-                show_name=account_form.account_name.data,
-                pay_type=account_form.pay_type.data,
-                fee=account_fee
-            )
-            if not account_form.income.data:
-                account.refund_fee = -account_fee
-            account.created_at = datetime.strptime(account_form.account_date.data, "%Y/%m/%d")
-            db.session.add(account)
-            try:
-                if account.show_name == '转入微信':
-                    account_form.account_name.data = ''
-                    account_form.pay_type.data = '微信'
-                    account_new = Account(
-                        show_name=account.show_name,
-                        pay_type='微信',
-                        fee=-account_fee,
-                        refund_fee=account_fee,
-                        created_at=account.created_at,
-                    )
-                    db.session.add(account_new)
-                db.session.commit()
-                flash('该账务已插入')
-            except Exception as e:
-                print(e)
-                db.session.rollback()
-                flash('该账务插入失败')
+            insert_account_fuc(account_form)
     else:
         account_form.account_date.data = datetime.now().strftime('%Y/%m/%d')
     del_accout_form = DelAccountForm()
@@ -494,3 +462,64 @@ def query_term_to_datetime(query_term):
         dt = datetime.now()
         dt_cur_month = datetime(dt.year, dt.month, 1)
     return dt_cur_month
+
+
+def insert_account_fuc(account_form):
+    account_last = Account.query.filter().order_by(Account.id.desc()).first()
+    account_fee = eval(account_form.account_fee.data)
+    if not account_form.income.data:
+        account_fee = -account_fee
+    if account_last.show_name == account_form.account_name.data \
+            and account_fee == account_last.fee \
+            and account_last.last_updated_at > datetime.now() - timedelta(seconds=40):
+        flash('重复插入')
+    else:
+        account = Account(
+            show_name=account_form.account_name.data,
+            pay_type=account_form.pay_type.data,
+            fee=account_fee
+        )
+        if not account_form.income.data:
+            account.refund_fee = -account_fee
+        account.created_at = datetime.strptime(account_form.account_date.data, "%Y/%m/%d")
+        db.session.add(account)
+        try:
+            if account.show_name == '转入微信':
+                account_form.account_name.data = ''
+                account_form.pay_type.data = '微信'
+                account_new = Account(
+                    show_name=account.show_name,
+                    pay_type='微信',
+                    fee=-account_fee,
+                    refund_fee=account_fee,
+                    created_at=account.created_at,
+                )
+                db.session.add(account_new)
+            db.session.commit()
+            flash('该账务已插入')
+        except Exception as e:
+            print(e)
+            db.session.rollback()
+            flash('该账务插入失败')
+
+
+def modify_account_fuc(account_form):
+    modify_account = Account.query.filter(Account.id == account_form.modify_account_id.data).first()
+    if modify_account is None:
+        flash('该账务不存在')
+        return
+    if modify_account.show_name != account_form.account_name.data:
+        flash(f'账务名从{modify_account.show_name}变为{account_form.account_name.data}')
+        modify_account.show_name = account_form.account_name.data
+    modify_account.pay_type = account_form.pay_type.data
+    account_fee = eval(account_form.account_fee.data)
+    if not account_form.income.data:
+        account_fee = -account_fee
+    if modify_account.fee != account_fee:
+        modify_account.fee = account_fee
+        flash(f'金额从{modify_account.refund_fee}变为{account_fee}')
+        if not account_form.income.data:
+            modify_account.refund_fee = -account_fee
+    db.session.add(modify_account)
+    db.session.commit()
+    flash('账务更新成功')

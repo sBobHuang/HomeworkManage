@@ -48,6 +48,7 @@ class UploadForm(FlaskForm):
 
 class AccountForm(FlaskForm):
     form_title = '新增账务'
+    modify_account_id = IntegerField('账务ID(修改时填写)')
     account_name = StringField('账务名称', validators=[DataRequired()])
     account_date = StringField('账务日期', validators=[DataRequired()])
     account_fee = StringField('金额', validators=[DataRequired()])
