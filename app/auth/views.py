@@ -351,12 +351,11 @@ def acc():
     quartReportContent.append(
         ['', '结余', db.session.query(func.sum(Account.fee)).
                               filter(Account.created_at < dt_end).first()[0]])
-    quartReportContent.append(
-        ['', '招商卡结余', db.session.query(func.sum(Account.fee)).
-            filter(Account.created_at < dt_end, Account.pay_type == '招商卡').first()[0]])
-    quartReportContent.append(
-        ['', '微信结余', db.session.query(func.sum(Account.fee)).
-            filter(Account.created_at < dt_end, Account.pay_type == '微信').first()[0]])
+    item_list = ['招商卡', '支付宝', '微信']
+    for i in item_list:
+        quartReportContent.append(
+            ['', f'{i}结余', db.session.query(func.sum(Account.fee)).
+                filter(Account.created_at < dt_end, Account.pay_type == i).first()[0]])
     return render_template('auth/quart_report.html',
                            form=account_form,
                            query_terms=[current_term, (dt_cur_month-relativedelta(months=1)).strftime('%Y%m'),
