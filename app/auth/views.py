@@ -287,7 +287,7 @@ def oi_download():
 def acc():
     account_form = AccountForm()
     if account_form.validate_on_submit():
-        if account_form.modify_account_id.data is not None:
+        if account_form.modify_account_id.data.isdigit():
             modify_account_fuc(account_form)
         else:
             insert_account_fuc(account_form)
@@ -504,7 +504,7 @@ def insert_account_fuc(account_form):
 
 
 def modify_account_fuc(account_form):
-    modify_account = Account.query.filter(Account.id == account_form.modify_account_id.data).first()
+    modify_account = Account.query.filter(Account.id == int(account_form.modify_account_id.data)).first()
     if modify_account is None:
         flash('该账务不存在')
         return
