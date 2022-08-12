@@ -517,7 +517,7 @@ def modify_account_fuc(account_form):
         account_fee = -account_fee
     if modify_account.fee != account_fee:
         modify_account.fee = account_fee
-        flash(f'金额从{modify_account.refund_fee}变为{account_fee}')
+        flash(f'金额从{modify_account.fee}变为{account_fee}')
         if not account_form.income.data:
             modify_account.refund_fee = -account_fee
     db.session.add(modify_account)
