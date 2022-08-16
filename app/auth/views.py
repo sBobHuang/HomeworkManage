@@ -314,7 +314,7 @@ def acc():
     quartReportContent = quartReportPayShow(dt_cur_month, dt_end)
     quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
-                               '',
+                               calSummary(quartReportContent, 2)-calSummary(quartReportContent, 2),
                                ''])
     quartReportContent.append(
         ['', '结余', db.session.query(func.sum(Account.fee)).
