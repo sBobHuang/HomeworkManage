@@ -57,6 +57,7 @@ class AccountForm(FlaskForm):
         choices=[('招商卡', '招商卡'),
                  ('支付宝', '支付宝'),
                  ('微信', '微信')
+                 ,('历史记录', '历史记录'),
                  ],
         coerce=str
     )
