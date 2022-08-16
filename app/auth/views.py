@@ -315,7 +315,7 @@ def acc():
     quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
                                calSummary(quartReportContent, 2)-calSummary(quartReportContent, 3),
-                               ''])
+                               calAllSummary(quartReportContent, 2)-calAllSummary(quartReportContent, 3)])
     quartReportContent.append(
         ['', '结余', db.session.query(func.sum(Account.fee)).
                               filter(Account.created_at < dt_end).first()[0]])
@@ -380,6 +380,15 @@ def calSummary(content, i):
     disable_set = ['转入', '转入微信', '微信转入', '招商卡结余', '微信结余', '余额宝-房租', '分成', '转出', '转入薪金宝']
     for item in content:
         if item[i] == '' or item[1] in disable_set:
+            continue
+        summary = summary + item[i]
+    return summary
+
+
+def calAllSummary(content, i):
+    summary = 0
+    for item in content:
+        if item[i] == '':
             continue
         summary = summary + item[i]
     return summary
