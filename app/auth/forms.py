@@ -52,12 +52,10 @@ class AccountForm(FlaskForm):
     account_date = StringField('账务日期', validators=[DataRequired()])
     income = BooleanField('收入(默认支出)')
     account_fee = StringField('金额', validators=[DataRequired()])
+    item_list = ['支付宝', '微信', '银行卡']
     pay_type = SelectField(
         label='支付方式',
-        choices=[('支付宝', '支付宝'),
-                 ('微信', '微信'),
-                 ('银行卡', '银行卡'),
-                 ],
+        choices=[(i, i) for i in item_list],
         coerce=str
     )
     modify_account_id = StringField('账务ID(修改时填写)')

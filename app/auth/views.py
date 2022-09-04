@@ -319,7 +319,7 @@ def acc():
     quartReportContent.append(
         ['', '结余', db.session.query(func.sum(Account.fee)).
                               filter(Account.created_at < dt_end).first()[0]])
-    item_list = ['招商卡', '支付宝', '微信']
+    item_list = ['支付宝', '微信', '银行卡']
     for i in item_list:
         quartReportContent.append(
             ['', f'{i}结余', db.session.query(func.sum(Account.fee)).
