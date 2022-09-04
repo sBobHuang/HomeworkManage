@@ -48,20 +48,19 @@ class UploadForm(FlaskForm):
 
 class AccountForm(FlaskForm):
     form_title = '新增账务'
-    modify_account_id = StringField('账务ID(修改时填写)')
     account_name = StringField('账务名称', validators=[DataRequired()])
     account_date = StringField('账务日期', validators=[DataRequired()])
+    income = BooleanField('收入(默认支出)')
     account_fee = StringField('金额', validators=[DataRequired()])
     pay_type = SelectField(
         label='支付方式',
-        choices=[('招商卡', '招商卡'),
-                 ('支付宝', '支付宝'),
-                 ('微信', '微信')
-                 ,('历史记录', '历史记录'),
+        choices=[('支付宝', '支付宝'),
+                 ('微信', '微信'),
+                 ('银行卡', '银行卡'),
                  ],
         coerce=str
     )
-    income = BooleanField('收入(默认支出)')
+    modify_account_id = StringField('账务ID(修改时填写)')
     account_submit = SubmitField('提交')
 
 

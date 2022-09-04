@@ -14,61 +14,14 @@ from .api_exception import RegisterSuccess
 from .forms import UploadForm, CalculatorForm, DownloadForm
 from ..fuc import extendedInfoArrayAdd, courseInfoIDToStr, getSubmitHomeWork, get_filelist
 from ..models import Student, FileRecord
+from flask import render_template, redirect, request, url_for, flash, current_app
 from .. import db
 from flask_moment import datetime
 
 
 @main.route('/', methods=['POST', 'GET'])
 def index():
-    form = UploadForm()
-    submit_homework = getSubmitHomeWork()
-    form.course.choices = [(i, i) for i in submit_homework]
-    form.homeWork.choices = []
-    if bool(submit_homework):
-        form.homeWork.choices = [(i,i) for i in submit_homework[list(submit_homework)[0]]]
-    if form.validate_on_submit():
-        student_query = Student.query.filter_by(id=form.studentID.data).first()
-        if student_query is None:
-            flash('学号填写错误')
-            return render_template('index.html', form=form)
-        student_query = Student.query.filter_by(id=form.studentID.data, real_name=form.name.data).first()
-        if student_query is None:
-            flash('学号与姓名不匹配')
-            return render_template('index.html', form=form)
-        basedir = current_app.config['BASE_DIR']
-        file_dir = os.path.join(basedir, "ZY", form.course.data,
-                                student_query.course_names,
-                                form.homeWork.data)  # 拼接成合法文件夹地址
-        if not os.path.exists(file_dir):
-            os.makedirs(file_dir)  # 文件夹不存在就创建
-        filename = form.file.data.filename
-        file = os.path.splitext(filename)
-        filename, file_type = file
-        new_filename = form.studentID.data + '_' + form.name.data + '_' + form.homeWork.data + file_type
-        files_query = FileRecord.query.filter_by(student_id=student_query.id,
-                                                 course_names=student_query.course_names,
-                                                 home_work_id=int(form.homeWork.data[2:])).first()
-        if files_query is None:
-            form.file.data.save(os.path.join(file_dir, new_filename))
-            flash('作业上传成功')
-            fileRecord = FileRecord(
-                student_id=student_query.id,
-                real_name=student_query.real_name,
-                home_work_id=int(form.homeWork.data[2:]),
-                course_names=student_query.course_names,
-                file_name=os.path.join(file_dir, new_filename)
-            )
-            db.session.add(fileRecord)
-        else:
-            print(files_query.file_name)
-            os.remove(files_query.file_name)
-            files_query.file_name = os.path.join(file_dir, new_filename)
-            files_query.created_at = datetime.utcnow()
-            flash("您已成功覆盖上次提交")
-            form.file.data.save(os.path.join(file_dir, new_filename))
-        db.session.commit()
-        # if not os.path.exists(os.path.join(file_dir, new_filename)):
-    return render_template('index.html', form=form)
+    return redirect(url_for('auth.acc'))
 
 
 @main.route('/addStudent')
