@@ -331,6 +331,7 @@ def acc():
                                         query_term[0:4] + ' 全年' if query_year else query_term],
                            del_form=del_accout_form,
                            quartReportLabels=quartReportLabels,
+                           last_record_time=get_last_record_time(),
                            quartReport=quartReportContent)
 
 
@@ -532,3 +533,9 @@ def modify_account_fuc(account_form):
     db.session.add(modify_account)
     db.session.commit()
     flash('账务更新成功')
+
+
+def get_last_record_time():
+    last_account = Account.query.filter_by().order_by(Account.id.desc()).first()
+    print(last_account.last_updated_at)
+    return last_account.last_updated_at.strftime('%Y/%m/%d %H:%M')

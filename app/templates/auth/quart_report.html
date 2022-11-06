@@ -25,6 +25,7 @@
             <a href="{{ url_for('auth.acc',query_term=query_terms[1])}}" style="font-size:large">上月</a>
             <a href="{{ url_for('auth.acc',query_term=query_terms[2])}}" style="font-size:large">下月</a>
             <a href="{{ url_for('auth.acc',query_term=query_terms[3], query_year=1)}}" style="font-size:large">本年</a>
+            <span>上次记账时间 {{ last_record_time }}</span>
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                 <tr align="center">
