@@ -283,7 +283,6 @@ def oi_download():
 
 
 @auth.route('/acc', methods=['GET', 'POST'])
-@login_required
 def acc():
     account_form = AccountForm()
     if account_form.validate_on_submit():
