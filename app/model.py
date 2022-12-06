@@ -260,3 +260,18 @@ class InstitutionJobInfo(db.Model):
 
     def cal_total(self):
         self.total_num = self.confirmed + self.un_confirmed + self.succeeded
+
+
+class BuyInfo(db.Model):
+    __tablename__ = 'buy_infos'
+    id = db.Column(db.Integer, primary_key=True)
+    buy_name = db.Column(db.Text())
+    priority_status = db.Column(db.Integer)
+    status = db.Column(db.Integer, default=0)
+    note = db.Column(db.Text())
+    created_at = db.Column(db.DateTime(), default=datetime.utcnow)
+    last_updated_at = db.Column(db.DateTime(), default=datetime.utcnow)
+    extended_info = db.Column(db.Text())
+
+    def __init__(self, **kwargs):
+        super(BuyInfo, self).__init__(**kwargs)

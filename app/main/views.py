@@ -4,7 +4,7 @@ import os
 import shutil
 
 import requests
-from flask import render_template, flash, request, current_app, Response
+from flask import render_template, flash, request, current_app, Response, redirect, url_for
 from contextlib import closing
 from flask_login import login_required
 
@@ -13,7 +13,7 @@ from . import main
 from .api_exception import RegisterSuccess
 from .forms import UploadForm, CalculatorForm, DownloadForm
 from ..fuc import extendedInfoArrayAdd, courseInfoIDToStr, getSubmitHomeWork, get_filelist
-from ..models import Student, FileRecord
+from ..model import Student, FileRecord
 from .. import db
 from flask_moment import datetime
 
@@ -196,3 +196,31 @@ def get_empty_file_dir(file_dir):
         os.mkdir(file_dir)
     for file in os.listdir(file_dir):
         os.remove(os.path.join(file_dir, file))
+
+
+@main.route('/tools')
+def tools():
+    return render_template('tools.html')
+
+
+@main.route('/add_table')
+def add_table():
+    import sqlite3
+    conn = sqlite3.connect("data.sqlite")
+    c = conn.cursor()
+    c.execute('''CREATE TABLE buy_infos
+(
+    id              INTEGER
+        primary key,
+    buy_name TEXT not null,
+    priority_status INTEGER,
+    status INTEGER,
+    note TEXT,
+    created_at DATETIME,
+    last_updated_at DATETIME,
+    extended_info TEXT
+)''')
+    conn.commit()
+    conn.close()
+    print('数据表创建成功')
+    return redirect(url_for('main.tools'))

@@ -1,4 +1,4 @@
-from app.models import CourseInfo, CourseNames, InstitutionInfo, InstitutionJobInfo
+from app.model import *
 from flask import current_app
 import json
 import os

@@ -2,9 +2,8 @@ from flask import render_template, redirect, request, url_for, flash, current_ap
 from flask_login import current_user
 from flask_login import login_user, logout_user, login_required
 from flask_moment import datetime
-from .forms import LoginForm, AddCourseForm, AddCoursesForm, UploadCoursesStus, UploadForm, AccountForm, DelAccountForm, \
-    AddInstitutionForm
-from ..models import User, CourseInfo, Student, FileRecord, InstitutionInfo, InstitutionJobInfo
+from .forms import *
+from ..model import *
 
 from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
     extendedInfoToDic, extendedInfoAdd, extendedInfoDel, getCourseNames, \
@@ -525,8 +524,8 @@ def modify_account_fuc(account_form):
     if not account_form.income.data:
         account_fee = -account_fee
     if modify_account.fee != account_fee:
-        modify_account.fee = account_fee
         flash(f'金额从{modify_account.fee}变为{account_fee}')
+        modify_account.fee = account_fee
         if not account_form.income.data:
             modify_account.refund_fee = -account_fee
     db.session.add(modify_account)
@@ -538,3 +537,43 @@ def get_last_record_time():
     last_account = Account.query.filter_by().order_by(Account.id.desc()).first()
     print(last_account.last_updated_at)
     return last_account.last_updated_at.strftime('%Y/%m/%d %H:%M')
+
+
+@auth.route('/buy', methods=['GET', 'POST'])
+def buy():
+    buy_form = BuyForm()
+    del_buy_form = DelBuyForm()
+    if buy_form.validate_on_submit():
+        add_buy_info(buy_form)
+    if del_buy_form.validate_on_submit():
+        del_buy_info(del_buy_form.buy_info_id.data)
+    return render_template('auth/buy.html',
+                           buyInfoLabels=['商品名', '记录日期', '优先级', '备注'],
+                           form=buy_form,
+                           del_form=del_buy_form,
+                           buy_infos=get_buy_infos())
+
+
+def del_buy_info(del_buy_info_id):
+    buy_info_del = BuyInfo.query.filter(BuyInfo.id == del_buy_info_id).first()
+    try:
+        db.session.delete(buy_info_del)
+        flash(buy_info_del.show_name + '已删除')
+    except:
+        flash(buy_info_del.show_name + '删除失败')
+
+
+def add_buy_info(buy_form):
+    if buy_form.modify_account_id.data.isdigit():
+        buy_info = BuyInfo.query.filter(BuyInfo.id == buy_form.modify_account_id.data).first()
+    else:
+        buy_info = BuyInfo()
+    buy_info.buy_name = buy_form.good_name.data
+    buy_info.priority_status = buy_form.good_priority.data
+    buy_info.note = buy_form.note.data
+    db.session.add(buy_info)
+
+
+def get_buy_infos():
+    return BuyInfo.query.filter().order_by(BuyInfo.status,
+                                           BuyInfo.priority_status.desc()).all()

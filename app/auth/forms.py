@@ -77,3 +77,16 @@ class AddInstitutionForm(FlaskForm):
     job_category = StringField('报考类别', validators=[DataRequired()])
     institution_submit = SubmitField('提交')
 
+
+class BuyForm(FlaskForm):
+    form_title = '购买商品'
+    modify_account_id = StringField('商品ID(修改时填写)')
+    good_name = StringField('商品名称', validators=[DataRequired()])
+    good_priority = IntegerField('优先级', default=100)
+    note = StringField('备注')
+    add_submit = SubmitField('提交')
+
+
+class DelBuyForm(FlaskForm):
+    buy_info_id = IntegerField('删除商品ID', validators=[DataRequired()])
+    del_submit = SubmitField('提交')

@@ -7,7 +7,7 @@ from flask_login import login_required,current_user
 
 from . import main
 from ..fuc import make_zip
-from ..models import Student, FileRecord
+from ..model import Student, FileRecord
 import io
 import pandas as pd
 from pandas import ExcelWriter
