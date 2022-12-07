@@ -535,7 +535,6 @@ def modify_account_fuc(account_form):
 
 def get_last_record_time():
     last_account = Account.query.filter_by().order_by(Account.id.desc()).first()
-    print(last_account.last_updated_at)
     return last_account.last_updated_at.strftime('%Y/%m/%d %H:%M')
 
 
