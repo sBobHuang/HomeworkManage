@@ -205,7 +205,7 @@ def tools():
 
 @main.route('/update_ssl')
 def update_ssl():
-    return render_template('tools.html', msg=os.system('certbot renew'))
+    return render_template('tools.html', msg=os.system('certbot renew -n'))
 
 
 @main.route('/add_table')
