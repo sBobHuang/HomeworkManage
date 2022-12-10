@@ -32,6 +32,7 @@
                 <tbody>
                 {% for i in buy_infos %}
                     <tr align="center">
+                        <td> {{ i.id }}</td>
                         <td> {{ i.buy_name }}</td>
                         <td> {{ i.created_at.strftime("%m/%d") }}</td>
                         <td> {{ i.priority_status }}</td>
