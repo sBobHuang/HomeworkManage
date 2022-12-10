@@ -547,7 +547,7 @@ def buy():
     if del_buy_form.validate_on_submit():
         del_buy_info(del_buy_form.buy_info_id.data)
     return render_template('auth/buy.html',
-                           buyInfoLabels=['商品名', '记录日期', '优先级', '备注'],
+                           buyInfoLabels=['编号', '商品名', '记录日期', '优先级', '备注'],
                            form=buy_form,
                            del_form=del_buy_form,
                            buy_infos=get_buy_infos())

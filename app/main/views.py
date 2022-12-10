@@ -203,6 +203,11 @@ def tools():
     return render_template('tools.html')
 
 
+@main.route('/update_ssl')
+def update_ssl():
+    return render_template('tools.html', msg=os.system('certbot renew'))
+
+
 @main.route('/add_table')
 def add_table():
     import sqlite3

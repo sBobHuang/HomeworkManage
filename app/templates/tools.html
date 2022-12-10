@@ -4,5 +4,7 @@
 {% block title %}工具箱{% endblock %}
 
 {% block page_content %}
-
+    {% if msg %}
+    <p>{{ msg }}</p>
+    {% endif %}
 {% endblock %}
