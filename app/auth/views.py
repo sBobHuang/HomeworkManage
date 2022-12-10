@@ -557,9 +557,9 @@ def del_buy_info(del_buy_info_id):
     buy_info_del = BuyInfo.query.filter(BuyInfo.id == del_buy_info_id).first()
     try:
         db.session.delete(buy_info_del)
-        flash(buy_info_del.show_name + '已删除')
+        flash(buy_info_del.buy_name + '已删除')
     except:
-        flash(buy_info_del.show_name + '删除失败')
+        flash(buy_info_del.buy_name + '删除失败')
 
 
 def add_buy_info(buy_form):
