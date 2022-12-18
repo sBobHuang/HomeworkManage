@@ -210,3 +210,30 @@ def get_content(url):
         verify=False)
     response.encoding = 'utf-8'
     return response.text
+
+
+def get_user_by_username(username):
+    return User.query.filter_by(username=username).first()
+
+
+def db_commit(obj, error_msg=None):
+    db.session.add(obj)
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        if error_msg is not None:
+            print(error_msg)
+        print(e)
+
+
+def add_new_user(username, password, mobile_phone):
+    user = get_user_by_username(username)
+    if user is not None:
+        if mobile_phone == '管理员注册':
+            return False
+        else:
+            return user
+    user = User(username=username, password=password, mobile_phone=mobile_phone)
+    db_commit(user)
+    return user

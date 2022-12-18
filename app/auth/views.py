@@ -5,9 +5,7 @@ from flask_moment import datetime
 from .forms import *
 from ..model import *
 
-from ..fuc import courseInfoIDToStr, courseManageShow, homeWorkShow, \
-    extendedInfoToDic, extendedInfoAdd, extendedInfoDel, getCourseNames, \
-    addCourseName, addCourseNames, add_institution_infos_fuc, spider_institution_jobs_fuc
+from ..fuc import *
 from . import auth
 from ..main.export import exportOneHomeWorks
 import os
@@ -22,9 +20,6 @@ from dateutil.relativedelta import relativedelta
 def before_request():
     if current_user.is_authenticated:
         current_user.ping()
-        if current_user.mobile_phone != current_app.config['FLASK_ADMIN']:
-            if current_user.is_authenticated and not current_user.confirmed and request.endpoint[:5] != 'auth.':
-                return redirect(url_for('auth.unconfirmed'))
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -32,13 +27,9 @@ def before_request():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        if form.username.data == current_app.config['FLASK_ADMIN']:
-            user = User.query.filter_by(mobile_phone=form.username.data).first()
-            login_user(user, form.remember_me.data)
-            return redirect(request.args.get('next') or url_for('auth.courseAdmin'))
         user = User.query.filter_by(username=form.username.data).first()
         if user is not None and user.verify_password(form.password.data):
-            login_user(user, form.remember_me.data)
+            login_user(user, remember=True)
             return redirect(request.args.get('next') or url_for('main.index'))
         flash('用户名或者密码错误')
     return render_template('auth/login.html', form=form)
@@ -51,6 +42,21 @@ def logout():
     logout_user()
     flash('您已经退出账号!')
     return redirect(url_for('main.index'))
+
+
+@auth.route('/newUser', methods=['GET', 'POST'])
+@login_required
+def register():
+    form = RegistrationForm()
+    if not current_user.is_administrator():
+        return redirect(url_for('main.index'))
+    if form.validate_on_submit():
+        if add_new_user(form.username.data, form.password2.data, '管理员注册'):
+            flash('您已注册新用户!')
+            return redirect(url_for('main.index'))
+        else:
+            flash("此账号已注册")
+    return render_template('auth/register.html', form=form)
 
 
 @auth.route('/admin', methods=['GET', 'POST'])
@@ -283,6 +289,7 @@ def oi_download():
 
 
 @auth.route('/acc', methods=['GET', 'POST'])
+@login_required
 def acc(lend=None):
     account_form = AccountForm()
     if account_form.validate_on_submit():

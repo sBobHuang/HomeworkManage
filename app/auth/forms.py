@@ -1,13 +1,27 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
-from wtforms import StringField, PasswordField, FileField, BooleanField, SubmitField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, FileField, BooleanField, SubmitField, SelectField, IntegerField, \
+    ValidationError
 from wtforms.validators import DataRequired, Length, EqualTo
+
+from app.model import User
+
+
+class RegistrationForm(FlaskForm):
+    username = StringField('用户名', validators=[DataRequired(), Length(1, 64)])
+    password = PasswordField('密码', validators=[DataRequired(), EqualTo('password2', message='两次输入的密码不一样！')])
+    password2 = PasswordField('确认密码', validators=[DataRequired()])
+    submit = SubmitField('注册')
+
+    def validate_username(self, field):
+        if User.query.filter_by(username=field.data).first():
+            raise ValidationError('账户已注册')
 
 
 class LoginForm(FlaskForm):
     username = StringField('用户名', validators=[DataRequired(), Length(1, 64)])
     password = PasswordField('密码', validators=[DataRequired()])
-    remember_me = BooleanField('记住我')
+    # remember_me = BooleanField('记住我')
     submit = SubmitField('登录')
 
 
