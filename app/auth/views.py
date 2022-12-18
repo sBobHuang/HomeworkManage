@@ -17,6 +17,7 @@ from sqlalchemy import func
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 
+
 @auth.before_app_request
 def before_request():
     if current_user.is_authenticated:
@@ -282,7 +283,7 @@ def oi_download():
 
 
 @auth.route('/acc', methods=['GET', 'POST'])
-def acc():
+def acc(lend=None):
     account_form = AccountForm()
     if account_form.validate_on_submit():
         if account_form.modify_account_id.data.isdigit():
@@ -306,26 +307,32 @@ def acc():
     query_year = request.args.get('query_year', None, type=bool)
     dt_cur_month = query_term_to_datetime(query_term)
     if query_year:
-        dt_end = datetime(dt_cur_month.year+1, 1, 1)
+        dt_end = datetime(dt_cur_month.year + 1, 1, 1)
     else:
-        dt_end = dt_cur_month+relativedelta(months=1)
-    quartReportContent = quartReportPayShow(dt_cur_month, dt_end)
+        dt_end = dt_cur_month + relativedelta(months=1)
+    if lend:
+        lend_query = Account.query.filter_by(show_name='姐姐还钱').all()
+        quartReportContent = quartReportPayShow(lend_query)
+    else:
+        quartReportContent = quartReportPayShow(query_by_date(dt_cur_month, dt_end))
     quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
-                               calSummary(quartReportContent, 2)-calSummary(quartReportContent, 3),
-                               calAllSummary(quartReportContent, 2)-calAllSummary(quartReportContent, 3)])
-    quartReportContent.append(
-        ['', '结余', db.session.query(func.sum(Account.fee)).
-                              filter(Account.created_at < dt_end).first()[0]])
-    item_list = ['招商卡', '支付宝', '微信']
-    for i in item_list:
+                               calSummary(quartReportContent, 2) - calSummary(quartReportContent, 3),
+                               calAllSummary(quartReportContent, 2) - calAllSummary(quartReportContent, 3)])
+    if lend is None:
         quartReportContent.append(
-            ['', f'{i}结余', db.session.query(func.sum(Account.fee)).
-                filter(Account.created_at < dt_end, Account.pay_type == i).first()[0]])
+            ['', '结余', db.session.query(func.sum(Account.fee)).
+                filter(Account.created_at < dt_end).first()[0]])
+        item_list = ['招商卡', '支付宝', '微信']
+        for i in item_list:
+            quartReportContent.append(
+                ['', f'{i}结余', db.session.query(func.sum(Account.fee)).
+                    filter(Account.created_at < dt_end, Account.pay_type == i).first()[0]])
     return render_template('auth/quart_report.html',
+                           lend=lend,
                            form=account_form,
-                           query_terms=[current_term, (dt_cur_month-relativedelta(months=1)).strftime('%Y%m'),
-                                        (dt_cur_month+relativedelta(months=1)).strftime('%Y%m'), f'{dt.year}01',
+                           query_terms=[current_term, (dt_cur_month - relativedelta(months=1)).strftime('%Y%m'),
+                                        (dt_cur_month + relativedelta(months=1)).strftime('%Y%m'), f'{dt.year}01',
                                         query_term[0:4] + ' 全年' if query_year else query_term],
                            del_form=del_accout_form,
                            quartReportLabels=quartReportLabels,
@@ -347,11 +354,14 @@ class Account(db.Model):
         super(Account, self).__init__(**kwargs)
 
 
-def quartReportPayShow(dt_cur_month, dt_end):
-    reportPay = []
-    accounts_query = Account.query.filter(Account.created_at >= dt_cur_month,
-                                          Account.created_at < dt_end).\
+def query_by_date(dt_cur_month, dt_end):
+    return Account.query.filter(Account.created_at >= dt_cur_month,
+                                Account.created_at < dt_end). \
         order_by(Account.created_at.desc(), Account.id.desc()).all()
+
+
+def quartReportPayShow(accounts_query):
+    reportPay = []
     for account in accounts_query:
         if account.fee < 0:
             reportPay.append([
@@ -576,3 +586,8 @@ def add_buy_info(buy_form):
 def get_buy_infos():
     return BuyInfo.query.filter().order_by(BuyInfo.status,
                                            BuyInfo.priority_status.desc()).all()
+
+
+@auth.route('/lend', methods=['GET', 'POST'])
+def lend():
+    return acc(lend=True)
