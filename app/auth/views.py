@@ -311,7 +311,7 @@ def acc(lend=None):
     else:
         dt_end = dt_cur_month + relativedelta(months=1)
     if lend:
-        lend_query = Account.query.filter_by(show_name='姐姐还钱').all()
+        lend_query = Account.query.filter_by(show_name='姐姐还钱').order_by(Account.id.desc()).all()
         quartReportContent = quartReportPayShow(lend_query)
     else:
         quartReportContent = quartReportPayShow(query_by_date(dt_cur_month, dt_end))
