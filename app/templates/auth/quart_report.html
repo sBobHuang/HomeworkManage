@@ -5,9 +5,11 @@
 
 
 {% block page_content %}
+    {% if lend == None %}
     <div class="panel-heading">
             <h3 align="center">{{ query_terms[-1] }} bob 总帐</h3>
     </div>
+    {% endif %}
     {% if lend == None %}
     <div class="col-md-3 col-sm-12 col-xs-12">
          <div>
@@ -23,11 +25,15 @@
 
         <br>
         <div class="table-responsive">
+            {% if lend == None %}
             <a href="{{ url_for('auth.acc',query_term=query_terms[0])}}" style="font-size:large">本月</a>
             <a href="{{ url_for('auth.acc',query_term=query_terms[1])}}" style="font-size:large">上月</a>
             <a href="{{ url_for('auth.acc',query_term=query_terms[2])}}" style="font-size:large">下月</a>
             <a href="{{ url_for('auth.acc',query_term=query_terms[3], query_year=1)}}" style="font-size:large">本年</a>
             <span>上次记账时间 {{ last_record_time }}</span>
+            {% else %}
+            <span>剩余{{ 26000 - quartReport [-1][2] }}</span>
+            {% endif %}
             <table class="table table-striped table-bordered table-hover">
                 <thead>
                 <tr align="center">
