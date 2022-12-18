@@ -289,7 +289,6 @@ def oi_download():
 
 
 @auth.route('/acc', methods=['GET', 'POST'])
-@login_required
 def acc(lend=None):
     account_form = AccountForm()
     if account_form.validate_on_submit():
@@ -321,6 +320,8 @@ def acc(lend=None):
         lend_query = Account.query.filter_by(show_name='姐姐还钱').order_by(Account.id.desc()).all()
         quartReportContent = quartReportPayShow(lend_query)
     else:
+        if not current_user.is_authenticated:
+            return current_app.login_manager.unauthorized()
         quartReportContent = quartReportPayShow(query_by_date(dt_cur_month, dt_end))
     quartReportContent.append(['', '共计', calSummary(quartReportContent, 2),
                                calSummary(quartReportContent, 3),
