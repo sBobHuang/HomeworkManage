@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}bob的账务{% endblock %}
+{% block title %}
+    {% if lend == None %} bob的账务
+    {% else %} 记录 {% endif %}
+{% endblock %}
 
+{% block navbar %}
+
+{% endblock %}
 
 {% block page_content %}
     {% if lend == None %}
