@@ -596,6 +596,6 @@ def get_buy_infos():
                                            BuyInfo.priority_status.desc()).all()
 
 
-@auth.route('/lend', methods=['GET', 'POST'])
-def lend():
-    return acc(lend=True)
+# @auth.route('/lend', methods=['GET', 'POST'])
+# def lend():
+#     return acc(lend=True)
